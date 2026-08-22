@@ -20,6 +20,7 @@
     "pdf-lib": "^1.17.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "ssh2": "^1.17.0",
     "tailwind-merge": "^3.6.0",
     "xlsx": "^0.18.5"
   },
@@ -28,6 +29,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/ssh2": "^1.15.5",
     "eslint": "^9",
     "eslint-config-next": "16.3.2",
     "prisma": "^6.4.1",
