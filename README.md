@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sistema de Trazabilidad y Gestión de Licitaciones Estatales (OSCE / SIGA / SIAF)
 
-## Getting Started
+Sistema integral desarrollado para la gestión de contrataciones públicas, trazabilidad documental desde la convocatoria (TDR) hasta la conformidad de pago SIAF, acreditación inteligente de experiencia con suma dinámica de montos y empaquetador automático de propuestas en PDF con foliación correlativa.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Tecnologías Utilizadas
+
+- **Framework**: [Next.js 16 (App Router)](https://nextjs.org/)
+- **Lenguaje**: [TypeScript](https://www.typescriptlang.org/)
+- **Estilos & UI**: [Tailwind CSS 4](https://tailwindcss.com/) + [Lucide React](https://lucide.dev/)
+- **Base de Datos & ORM**: [PostgreSQL](https://www.postgresql.org/) con [Prisma ORM 6](https://www.prisma.io/)
+- **Manipulación de PDFs**: [pdf-lib](https://pdf-lib.js.org/) (Fusión y foliación digital `0001`, `0002`...)
+- **Exportación de Datos**: [xlsx](https://sheetjs.com/) (Plantillas oficiales OSCE)
+- **Gestión de Procesos**: [PM2](https://pm2.keymetrics.io/)
+
+---
+
+## 📁 Estructura del Proyecto
+
+```
+sistema-trazabilidad/
+├── prisma/
+│   ├── schema.prisma         # Modelo de datos relacional (Empresas, Profesionales, Servicios, Hitos)
+│   └── seed.ts               # Seeder con datos reales (SUSALUD, PNP, UGEL 06, Andean Trading)
+├── public/
+│   └── uploads/              # Almacén local de documentos y PDFs
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── empaquetador/ # Compilación de propuestas en PDF con foliado
+│   │   │   ├── empresas/     # CRUD de empresas del grupo
+│   │   │   ├── experiencia/  # Buscador y exportador Excel OSCE
+│   │   │   ├── profesionales/# Control de personal y semáforo de colegiaturas
+│   │   │   ├── servicios/    # Trazabilidad de órdenes y ciclo de 8 hitos
+│   │   │   └── upload/       # Subida de comprobantes y archivos
+│   │   ├── empaquetador/     # Interfaz del compilador de expedientes PDF
+│   │   ├── empresas/         # Gestión de personerías jurídicas, RNP, RUC y CCI
+│   │   ├── experiencia/      # Buscador de palabras clave y sumatoria de montos
+│   │   ├── profesionales/    # Fichas de técnicos e ingenieros con alertas de caducidad
+│   │   ├── reportes/         # Distribución por rubros y entidades contratantes
+│   │   ├── servicios/        # Listado de órdenes y vista detallada por hitos
+│   │   ├── usuarios/         # Mantenimiento de usuarios y roles
+│   │   ├── layout.tsx        # Shell global con Sidebar y Navbar
+│   │   └── page.tsx          # Dashboard principal con métricas y pipeline
+│   ├── components/           # Componentes UI (Sidebar, Navbar, Modales, Badges)
+│   ├── lib/                  # Clientes de Prisma y utilidades de PDF
+│   └── types/                # Interfaces y tipos TypeScript
+└── DOCUMENTO_FUNCIONAL.md    # Manual funcional y operativo para el cliente
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ⚙️ Configuración y Variables de Entorno
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Crea o edita el archivo `.env` en la raíz del proyecto:
 
-## Learn More
+```env
+DATABASE_URL="postgresql://postgres:Loxer73147683@144.126.152.165:5924/trazabilidad_estado?schema=public"
+PORT=3355
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠️ Instalación y Ejecución Local
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Instalar dependencias:**
+   ```bash
+   npm install
+   ```
 
-## Deploy on Vercel
+2. **Sincronizar base de datos y generar cliente:**
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Poblar datos de prueba reales:**
+   ```bash
+   npm run db:seed
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. **Iniciar en modo desarrollo:**
+   ```bash
+   npm run dev
+   ```
+   Abrir: `http://localhost:3000`
+
+---
+
+## 🚢 Despliegue en Servidor con PM2
+
+Para producción en el puerto `3355`:
+
+```bash
+npm run build
+pm2 start npm --name "sistema-trazabilidad" -- start -- -p 3355
+pm2 save
+```
+
+---
+
+## 📄 Documentación Funcional
+
+Para revisar el manual operativo detallado paso a paso, consulta el archivo [DOCUMENTO_FUNCIONAL.md](./DOCUMENTO_FUNCIONAL.md).

@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id                 String            @id @default(cuid())
+  ruc                String            @unique
+  razonSocial        String
+  nombreComercial    String?
+  representanteLegal String
+  dniRepresentante   String
+  direccion          String
+  telefono           String?
+  email              String?
+  banco              String?
+  cci                String?
+  rnpVigenciaDesde   DateTime?
+  rnpEstado          String            @default("VIGENTE")
+  rnpPdf             String?
+  rucPdf             String?
+  cciPdf             String?
+  anexo1Pdf          String?
+  anexo2Pdf          String?
+  anexo3Pdf          String?
+  servicios          ServiceContract[]
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+}
+
+model Professional {
+  id                  String                 @id @default(cuid())
+  tipo                String                 @default("TECNICO") // TECNICO | INGENIERO
+  dni                 String                 @unique
+  nombres             String
+  apellidos           String
+  profesion           String // Ej. "Técnico en Construcción Civil"
+  institucion         String? // Ej. "CAPECO"
+  nroRegistro         String? // Ej. "235541-A-DDOO" o CIP
+  colegiaturaCaducidad DateTime? // Para semáforo de vigencia
+  telefono            String?
+  email               String?
+  documentos          ProfessionalDocument[]
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+}
+
+model ProfessionalDocument {
+  id             String       @id @default(cuid())
+  profesionalId  String
+  profesional    Professional @relation(fields: [profesionalId], references: [id], onDelete: Cascade)
+  tipo           String // TITULO | CERTIFICADO | CONSTANCIA | COLEGIATURA
+  nombre         String // Ej. "Título Profesional Técnico"
+  entidadEmisora String?
+  fechaEmision   DateTime?
+  fechaCaducidad DateTime?
+  archivoUrl     String
+  createdAt      DateTime     @default(now())
+}
+
+model ServiceContract {
+  id                   String            @id @default(cuid())
+  codigoInterno        String            @unique // Ej. "COT-2026-00175"
+  empresaId            String
+  empresa              Company           @relation(fields: [empresaId], references: [id])
+  entidad              String // Ej. "SUPERINTENDENCIA NACIONAL DE SALUD (SUSALUD)"
+  unidadEjecutora      String? // Ej. "001 SUPERINTENDENCIA NACIONAL DE SALUD"
+  objetoContratacion   String
+  descripcionDetallada String // Para Full-Text Search de experiencia
+  rubro                String? // Ej. "PINTURA", "ESTRUCTURAS METALICAS", "ALFOMBRAS"
+  montoSinIgv          Float
+  montoIgv             Float
+  montoTotal           Float
+  moneda               String            @default("S/")
+
+  // Hito 1 & 2: Convocatoria & Cotización
+  nroCotizacion        String?
+  fechaCotizacion      DateTime?
+  tdrPdf               String?
+  cotizacionPdf        String?
+
+  // Hito 3: Preparación Documental / Paquete
+  expedientePostulacionPdf String?
+
+  // Hito 4: Orden de Servicio
+  nroOrdenServicio     String? // Ej. "0000701"
+  nroSiaf              String? // Ej. "0000001761"
+  fechaOrden           DateTime?
+  plazoEjecucionDias   Int?
+  ordenServicioPdf     String?
+
+  // Hito 5: Informe del Contratista
+  fechaInforme         DateTime?
+  informePdf           String?
+
+  // Hito 6: Conformidad
+  nroConformidad       String?
+  fechaConformidad     DateTime?
+  conformidadPdf       String?
+
+  // Hito 7: Facturación
+  nroFactura           String? // Ej. "E001-150"
+  fechaFactura         DateTime?
+  montoFacturado       Float?
+  facturaPdf           String?
+
+  // Hito 8: Pago & Conformidad de Pago
+  fechaPago            DateTime?
+  nroOperacion         String?
+  montoPagado          Float?
+  pagoPdf              String?
+  detraccionPdf        String?
+
+  estado               String            @default("COTIZACION") // COTIZACION | ACEPTADO_ORDEN | EN_EJECUCION | CONFORME | FACTURADO | PAGADO | RECHAZADO
+  esHistorico          Boolean           @default(false)
+  documentos           ServiceDocument[]
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+}
+
+model ServiceDocument {
+  id          String          @id @default(cuid())
+  servicioId  String
+  servicio    ServiceContract @relation(fields: [servicioId], references: [id], onDelete: Cascade)
+  etapa       String // TDR | COTIZACION | ORDEN_SERVICIO | INFORME | CONFORMIDAD | FACTURA | PAGO_DETRACCION
+  nombre      String
+  archivoUrl  String
+  tamanoBytes Int?
+  createdAt   DateTime        @default(now())
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  role      String   @default("ADMIN") // ADMIN | ASISTENTE | OPERADOR
+  createdAt DateTime @default(now())
+}
