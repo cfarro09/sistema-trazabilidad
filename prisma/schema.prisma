@@ -28,6 +28,7 @@ model Company {
   anexo2Pdf          String?
   anexo3Pdf          String?
   servicios          ServiceContract[]
+  cotizaciones       Quote[]
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
 }
@@ -140,3 +141,48 @@ model User {
   role      String   @default("ADMIN") // ADMIN | ASISTENTE | OPERADOR
   createdAt DateTime @default(now())
 }
+
+model Quote {
+  id                String      @id @default(cuid())
+  numero            String      // ej. "00175 - 26"
+  codigoInterno     String      @unique // ej. "COT-2026-00175"
+  empresaId         String
+  empresa           Company     @relation(fields: [empresaId], references: [id])
+  entidad           String      // ej. "SUPERINTENDENCIA NACIONAL DE SALUD"
+  atencion          String?     @default("Unidad de Logística")
+  fecha             DateTime    @default(now())
+  objetoServicio    String      // Descripción del servicio / obra
+  ubicacion         String?
+  validezOferta     String      @default("30 días")
+  tiempoEjecucion   String      @default("10 días calendarios")
+  garantia          String      @default("12 meses")
+  formaPago         String      @default("Contado Comercial")
+  lugarEjecucion    String?     @default("Av. Velasco Astete N° 1398, Santiago de Surco, torre 'B', primer piso.")
+  montoCostoDirecto Float       @default(0)
+  montoIgv          Float       @default(0)
+  montoTotal        Float       @default(0)
+  montoLetras       String?     // ej. "SON: DIECISIETE MIL CON 00/100 SOLES"
+  estado            String      @default("BORRADOR") // BORRADOR | ENVIADA | ACEPTADA | RECHAZADA
+  esAntigua         Boolean     @default(false)
+  archivoPdf        String?
+  servicioId        String?     // Vinculado a ServiceContract si fue aceptada
+  items             QuoteItem[]
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+model QuoteItem {
+  id             String   @id @default(cuid())
+  quoteId        String
+  quote          Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  item           String   // ej. "1.00", "1.01", "2.03"
+  descripcion    String
+  unidad         String   @default("Global")
+  cantidad       Float    @default(1)
+  precioUnitario Float    @default(0)
+  precioParcial  Float    @default(0)
+  esTitulo       Boolean  @default(false)
+  orden          Int      @default(0)
+  createdAt      DateTime @default(now())
+}
+

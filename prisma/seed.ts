@@ -3,9 +3,11 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Seeding database with real procurement data...');
+  console.log('🌱 Seeding database with real procurement data and formal quotations...');
 
   // 1. Limpiar base de datos
+  await prisma.quoteItem.deleteMany();
+  await prisma.quote.deleteMany();
   await prisma.serviceDocument.deleteMany();
   await prisma.serviceContract.deleteMany();
   await prisma.professionalDocument.deleteMany();
@@ -141,7 +143,205 @@ async function main() {
     },
   });
 
-  // 5. Crear Servicios Reales
+  // 5. Crear la Cotización Formal Oficial N° 00175-26 con Partidas Desglosadas
+  const cotizacionOficial = await prisma.quote.create({
+    data: {
+      numero: '00175 - 26',
+      codigoInterno: 'COT-2026-00175',
+      empresaId: andean.id,
+      entidad: 'SUPERINTENDENCIA NACIONAL DE SALUD',
+      atencion: 'Unidad de Logística',
+      fecha: new Date('2026-08-13'),
+      objetoServicio: 'SERVICIO DE PINTADO DE LAS OFICINAS DE ALTA DIRECCIÓN CORRESPONDIENTES A LA GERENCIA GENERAL Y A LA SUPERINTENDENCIA, UBICADAS EN EL PRIMER PISO DEL PABELLÓN "B" DE LA SUPERINTENDENCIA NACIONAL DE SALUD',
+      ubicacion: 'Av. Velasco Astete N° 1398, Santiago de Surco, torre "B", primer piso.',
+      validezOferta: '30 días',
+      tiempoEjecucion: '10 días calendarios',
+      garantia: '12 meses',
+      formaPago: 'Contado Comercial',
+      lugarEjecucion: 'Av. Velasco Astete N° 1398, Santiago de Surco, torre "B", primer piso.',
+      montoCostoDirecto: 14406.78,
+      montoIgv: 2593.22,
+      montoTotal: 17000.00,
+      montoLetras: 'SON: DIECISIETE MIL CON 00/100 SOLES',
+      estado: 'ENVIADA',
+      esAntigua: false,
+      items: {
+        create: [
+          {
+            item: '1.00',
+            descripcion: 'ACTIVIDADES PRELIMINARES',
+            unidad: 'Global',
+            cantidad: 1,
+            precioUnitario: 0,
+            precioParcial: 0,
+            esTitulo: true,
+            orden: 1,
+          },
+          {
+            item: '1.01',
+            descripcion: 'Traslado de equipos, materiales y herramientas.',
+            unidad: 'Global',
+            cantidad: 1,
+            precioUnitario: 500.00,
+            precioParcial: 500.00,
+            esTitulo: false,
+            orden: 2,
+          },
+          {
+            item: '1.02',
+            descripcion: 'Protección del área de trabajo, seguridad, señalización, equipos de protección personal (EPP) y seguros para el personal',
+            unidad: 'Global',
+            cantidad: 1,
+            precioUnitario: 700.00,
+            precioParcial: 700.00,
+            esTitulo: false,
+            orden: 3,
+          },
+          {
+            item: '1.03',
+            descripcion: 'Limpieza en general y eliminación de residuos y excedente.',
+            unidad: 'Global',
+            cantidad: 1,
+            precioUnitario: 900.00,
+            precioParcial: 900.00,
+            esTitulo: false,
+            orden: 4,
+          },
+          {
+            item: '2.00',
+            descripcion: 'AREA DE ALTA DIRECCION',
+            unidad: 'Global',
+            cantidad: 1,
+            precioUnitario: 0,
+            precioParcial: 0,
+            esTitulo: true,
+            orden: 5,
+          },
+          {
+            item: '2.01',
+            descripcion: 'Retiro de tarugos, tornillos y clavos para el resane de las paredes',
+            unidad: 'Global',
+            cantidad: 1,
+            precioUnitario: 400.00,
+            precioParcial: 400.00,
+            esTitulo: false,
+            orden: 6,
+          },
+          {
+            item: '2.02',
+            descripcion: 'Resane, masillado y lijado de paredes dañadas',
+            unidad: 'Global',
+            cantidad: 1,
+            precioUnitario: 900.00,
+            precioParcial: 900.00,
+            esTitulo: false,
+            orden: 7,
+          },
+          {
+            item: '2.03',
+            descripcion: 'Pintura latex satinado (2 manos en paredes) Aprox. 416 m2 (color a elección de la entidad)',
+            unidad: 'Global',
+            cantidad: 1,
+            precioUnitario: 9568.00,
+            precioParcial: 9568.00,
+            esTitulo: false,
+            orden: 8,
+          },
+          {
+            item: '2.04',
+            descripcion: 'Pintura latex (2 manos en paredes) Aprox. 37 m2 (color a elección de la entidad)',
+            unidad: 'Global',
+            cantidad: 1,
+            precioUnitario: 666.00,
+            precioParcial: 666.00,
+            esTitulo: false,
+            orden: 9,
+          },
+          {
+            item: '2.05',
+            descripcion: 'Retiro de laminado y pavonado existente de lunas de 4 hojas, incluyendo desmontaje, retiro, limpieza, colocación de nuevo pavonado y reinstalación, para 04 hojas de 0.86 × 1.19 m y 04 hojas de 0.45 × 0.88 m.',
+            unidad: 'Global',
+            cantidad: 1,
+            precioUnitario: 772.78,
+            precioParcial: 772.78,
+            esTitulo: false,
+            orden: 10,
+          },
+        ],
+      },
+    },
+  });
+
+  // Cotización 2 de prueba para Grupo Constructores
+  await prisma.quote.create({
+    data: {
+      numero: '00182 - 26',
+      codigoInterno: 'COT-2026-00182',
+      empresaId: constructores.id,
+      entidad: 'MINISTERIO DE LA MUJER Y POBLACIONES VULNERABLES',
+      atencion: 'Oficina de Abastecimiento',
+      fecha: new Date('2026-08-18'),
+      objetoServicio: 'MANTENIMIENTO DE COBERTURAS Y ESTRUCTURAS METÁLICAS EN SEDE CENTRAL',
+      ubicacion: 'Jr. Camaná 616, Cercado de Lima',
+      validezOferta: '30 días',
+      tiempoEjecucion: '15 días calendarios',
+      garantia: '12 meses',
+      formaPago: 'Contado Comercial',
+      lugarEjecucion: 'Sede Central MIMP',
+      montoCostoDirecto: 21186.44,
+      montoIgv: 3813.56,
+      montoTotal: 25000.00,
+      montoLetras: 'SON: VEINTICINCO MIL CON 00/100 SOLES',
+      estado: 'BORRADOR',
+      esAntigua: false,
+      items: {
+        create: [
+          {
+            item: '1.00',
+            descripcion: 'TRABAJOS PRELIMINARES Y SEGURIDAD',
+            unidad: 'Global',
+            cantidad: 1,
+            precioUnitario: 0,
+            precioParcial: 0,
+            esTitulo: true,
+            orden: 1,
+          },
+          {
+            item: '1.01',
+            descripcion: 'Instalación de líneas de vida y andamios certificados',
+            unidad: 'Global',
+            cantidad: 1,
+            precioUnitario: 2500.00,
+            precioParcial: 2500.00,
+            esTitulo: false,
+            orden: 2,
+          },
+          {
+            item: '2.00',
+            descripcion: 'ESTRUCTURAS Y PINTURA',
+            unidad: 'Global',
+            cantidad: 1,
+            precioUnitario: 0,
+            precioParcial: 0,
+            esTitulo: true,
+            orden: 3,
+          },
+          {
+            item: '2.01',
+            descripcion: 'Aplicación de imprimante anticorrosivo y esmalte poliuretano',
+            unidad: 'm2',
+            cantidad: 350,
+            precioUnitario: 53.39,
+            precioParcial: 18686.44,
+            esTitulo: false,
+            orden: 4,
+          },
+        ],
+      },
+    },
+  });
+
+  // 6. Crear Servicios Reales
   // Servicio 1: SUSALUD Alfombra
   await prisma.serviceContract.create({
     data: {
@@ -246,8 +446,6 @@ async function main() {
       montoIgv: 4728.81,
       montoTotal: 31000.00,
       moneda: 'S/',
-      nroCotizacion: 'COT-UGEL06-2016-827',
-      fechaCotizacion: new Date('2016-11-10'),
       nroOrdenServicio: '0000827',
       nroSiaf: '1333',
       fechaOrden: new Date('2016-11-21'),
@@ -261,29 +459,7 @@ async function main() {
     },
   });
 
-  // Servicio 5: Cotización en trámite SUSALUD Pintado Alta Dirección
-  await prisma.serviceContract.create({
-    data: {
-      codigoInterno: 'COT-2026-00175',
-      empresaId: andean.id,
-      entidad: 'SUPERINTENDENCIA NACIONAL DE SALUD (SUSALUD)',
-      unidadEjecutora: '001 SUPERINTENDENCIA NACIONAL DE SALUD',
-      objetoContratacion: 'SERVICIO DE PINTADO DE LAS OFICINAS DE ALTA DIRECCIÓN CORRESPONDIENTES A LA GERENCIA GENERAL Y A LA SUPERINTENDENCIA',
-      descripcionDetallada: 'Actividades preliminares, protección de áreas de trabajo con EPP, resane, masillado y lijado de paredes dañadas, pintura látex satinado en paredes (416 m2) y pintura látex (37 m2), retiro y reposición de pavonado en lunas.',
-      rubro: 'PINTURA Y ACABADOS',
-      montoSinIgv: 14406.78,
-      montoIgv: 2593.22,
-      montoTotal: 17000.00,
-      moneda: 'S/',
-      nroCotizacion: '00175-26',
-      fechaCotizacion: new Date('2026-08-13'),
-      plazoEjecucionDias: 10,
-      estado: 'COTIZACION',
-      esHistorico: false,
-    },
-  });
-
-  console.log('✅ Base de datos poblada con éxito con datos de compras estatales reales!');
+  console.log('✅ Base de datos poblada con éxito con cotizaciones desagregadas y órdenes reales!');
 }
 
 main()

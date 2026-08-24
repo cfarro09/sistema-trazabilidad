@@ -14,6 +14,7 @@ import {
   UserCheck,
   FolderArchive,
   ShieldCheck,
+  FileText,
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -21,6 +22,7 @@ export default function Sidebar() {
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+    { name: 'Cotizaciones & Presupuestos', href: '/cotizaciones', icon: FileText, highlight: true },
     { name: 'Trazabilidad & Servicios', href: '/servicios', icon: FileSpreadsheet },
     { name: 'Acreditador de Experiencia', href: '/experiencia', icon: Search, highlight: true },
     { name: 'Empaquetador de Expedientes', href: '/empaquetador', icon: Layers, highlight: true },

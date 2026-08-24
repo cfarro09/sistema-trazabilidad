@@ -14,24 +14,62 @@ console.log('Connecting to remote server', config.host, '...');
 conn.on('ready', () => {
   console.log('SSH Connection established successfully!');
 
-  const commands = [
-    'mkdir -p /var/www/html',
-    'if [ ! -d "/var/www/html/sistema-trazabilidad" ]; then git clone https://github.com/cfarro09/sistema-trazabilidad.git /var/www/html/sistema-trazabilidad; else cd /var/www/html/sistema-trazabilidad && git pull origin main; fi',
-    'cd /var/www/html/sistema-trazabilidad && echo \'DATABASE_URL="postgresql://postgres:Loxer73147683@144.126.152.165:5924/trazabilidad_estado?schema=public"\\nPORT=3355\' > .env',
-    'cd /var/www/html/sistema-trazabilidad && npm install',
-    'cd /var/www/html/sistema-trazabilidad && npx prisma generate',
-    'cd /var/www/html/sistema-trazabilidad && npx prisma db push',
-    'cd /var/www/html/sistema-trazabilidad && npm run db:seed',
-    'cd /var/www/html/sistema-trazabilidad && npm run build',
-    'cd /var/www/html/sistema-trazabilidad && if pm2 list | grep -q "sistema-trazabilidad"; then pm2 restart sistema-trazabilidad; else pm2 start npm --name "sistema-trazabilidad" -- start -- -p 3355; fi',
-    'pm2 save',
-    'pm2 list',
-    'curl -I http://localhost:3355 || true',
-  ].join(' && ');
+  const script = `
+export PATH="/root/.nvm/versions/node/v22.21.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 
-  console.log('Running remote deployment commands...');
+echo "Using node: $(which node) ($(node -v))"
+echo "Using npm: $(which npm)"
+echo "Using pm2: $(which pm2)"
 
-  conn.exec(commands, (err, stream) => {
+mkdir -p /var/www/html
+cd /var/www/html
+
+if [ ! -d "sistema-trazabilidad" ]; then
+  git clone https://github.com/cfarro09/sistema-trazabilidad.git sistema-trazabilidad
+  cd sistema-trazabilidad
+else
+  cd sistema-trazabilidad
+  git fetch origin
+  git reset --hard origin/main
+fi
+
+echo 'DATABASE_URL="postgresql://postgres:Loxer73147683@144.126.152.165:5924/trazabilidad_estado?schema=public"' > .env
+echo 'PORT=3355' >> .env
+
+echo "=== Installing dependencies ==="
+npm install
+
+echo "=== Running Prisma generate & db push ==="
+npx prisma generate
+npx prisma db push
+
+echo "=== Seeding database ==="
+npm run db:seed
+
+echo "=== Building Next.js application ==="
+npm run build
+
+echo "=== Deploying with PM2 on port 3355 ==="
+# Check if pm2 process exists (without removing other projects)
+if pm2 describe sistema-trazabilidad > /dev/null 2>&1; then
+  echo "Restarting existing sistema-trazabilidad process..."
+  pm2 restart sistema-trazabilidad
+else
+  echo "Starting new sistema-trazabilidad process..."
+  pm2 start npm --name "sistema-trazabilidad" -- start -- -p 3355
+fi
+
+pm2 save
+
+echo "=== Current PM2 List ==="
+pm2 list
+
+echo "=== Testing endpoint on port 3355 ==="
+sleep 3
+curl -I http://localhost:3355 || true
+`;
+
+  conn.exec(script, (err, stream) => {
     if (err) {
       console.error('Exec error:', err);
       conn.end();
@@ -40,7 +78,7 @@ conn.on('ready', () => {
 
     stream
       .on('close', (code, signal) => {
-        console.log(`\nRemote deployment finished with exit code ${code}`);
+        console.log(`\nRemote deployment completed with exit code: ${code}`);
         conn.end();
       })
       .on('data', (data) => {
