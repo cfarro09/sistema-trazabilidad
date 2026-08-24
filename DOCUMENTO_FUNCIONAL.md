@@ -1,4 +1,4 @@
-# Manual Funcional: Sistema de Trazabilidad y Acreditación de Experiencia para Licitaciones Estatales
+# Manual Funcional: Sistema de Trazabilidad, Cotizaciones y Acreditación de Experiencia para Licitaciones Estatales
 
 **Dirigido a:** Gerencia General, Área de Logística y Especialistas en Licitaciones del Grupo Empresarial.
 
@@ -9,92 +9,77 @@
 El **Sistema de Trazabilidad y Gestión de Licitaciones** es una plataforma centralizada diseñada para optimizar los procesos de contratación con el Estado Peruano (OSCE / SIGA / SIAF) para las **3 empresas del grupo**.
 
 ### ¿Qué problemas resuelve?
-1. **Búsqueda inmediata de experiencia previa:** Evita revisar archivadores físicos o carpetas dispersas para encontrar facturas pasadas que sumen los montos exigidos en un Término de Referencia (TDR).
-2. **Empaquetado rápido de propuestas en PDF:** Reúne en segundos toda la documentación legal (RNP, RUC, CCI, DDJJs) y técnica (CVs, títulos, certificados) en un solo archivo PDF con **foliación automática (`0001`, `0002`...)**.
-3. **Control del ciclo de vida del servicio:** Registra cada etapa desde la invitación hasta el pago efectivo en la cuenta bancaria (CCI) vía SIAF.
-4. **Semáforo de caducidades:** Advierte con anticipación el vencimiento de constancias de habilidad o colegiatura de los profesionales.
+1. **Elaboración y Control de Cotizaciones Formales:** Creación de presupuestos con partidas desglosadas por grupos, cálculo automático de costo directo, IGV (18%), total general y monto en letras, con **formato oficial imprimible idéntico al emitido por la empresa**.
+2. **Búsqueda inmediata de experiencia previa:** Evita revisar archivadores físicos o carpetas dispersas para encontrar facturas pasadas que sumen los montos exigidos en un Término de Referencia (TDR).
+3. **Empaquetado rápido de propuestas en PDF:** Reúne en segundos toda la documentación legal (RNP, RUC, CCI, DDJJs) y técnica (CVs, títulos, certificados) en un solo archivo PDF con **foliación automática (`0001`, `0002`...)**.
+4. **Control del ciclo de vida del servicio:** Registra cada etapa desde la cotización hasta el pago efectivo en la cuenta bancaria (CCI) vía SIAF.
+5. **Semáforo de caducidades:** Advierte con anticipación el vencimiento de constancias de habilidad o colegiatura de los profesionales.
 
 ---
 
-## 2. Los 8 Hitos de la Trazabilidad Documental
-
-Cada contratación sigue un flujo estructurado de 8 etapas reglamentarias:
+## 2. Los 4 Grandes Módulos Operativos
 
 ```
-[1. Convocatoria (TDR)] ➔ [2. Cotización (Cód. Interno)] ➔ [3. Expediente PDF] ➔ [4. Orden O/S & SIAF]
-           ▲                                                                           │
-           └─────────────────────────── [FLUJO OPERATIVO] ─────────────────────────────┘
-                                                       │
-                                                       ▼
-[8. Pago SIAF & Detracción] ➔ [7. Facturación Electrónica] ➔ [6. Conformidad Oficial] ➔ [5. Informe Final]
+                                [ DASHBOARD PRINCIPAL ]
+        ┌───────────────────────────┼───────────────────────────┐
+        ▼                           ▼                           ▼
+[ 1. COTIZACIONES ]         [ 2. TRAZABILIDAD ]         [ 3. ACREDITADOR ]
+  ├─ Partidas Desagregadas    ├─ 8 Hitos (TDR ➔ SIAF)     ├─ Buscador "Pintura"
+  ├─ Formato Oficial PDF      ├─ N° Orden & SIAF          ├─ Suma Dinámica
+  └─ Conversión a Orden       └─ Conformidad y Pago       └─ Exportación OSCE Excel
 ```
 
-### Detalle de cada hito:
-1. **Convocatoria / Invitación:** Registro de la entidad convocante (ej. SUSALUD, PNP, UGEL) y adjunto de las especificaciones técnicas o TDR.
-2. **Cotización:** Se asigna un código único interno correlativo (ej. `COT-2026-00175`). Registra los montos desglosados (sin IGV, IGV y Total).
-3. **Preparación de Documentación:** Acceso al generador del paquete de postulación.
-4. **Orden de Servicio (O/S):** Al ser notificados como ganadores, se ingresa el **N° de Orden de Servicio** (ej. `0000701`) y el **N° de Expediente SIAF** (ej. `0000001761`), plazos y el PDF oficial emitido por la entidad.
-5. **Informe Técnico Final:** Carga del entregable con el registro fotográfico de las actividades ejecutadas.
-6. **Acta de Conformidad:** Registro del acta firmada por Servicios Generales o Logística de la entidad pública.
-7. **Facturación Electrónica:** Emisión del comprobante de pago electrónico (ej. `E001-150`), fecha y monto facturado.
-8. **Conformidad de Pago & Cierre:** Registro del depósito en la cuenta CCI, constancia de detracción en el Banco de la Nación y reporte SIAF cancelado.
+---
+
+## 3. Guía Operativa de Módulos
+
+### 📝 Módulo 1: Cotizaciones & Presupuestos (`/cotizaciones`)
+* **Ubicación:** Menú lateral principal $\rightarrow$ **"Cotizaciones & Presupuestos"**.
+* **Funcionalidades:**
+  1. **Lista de Cotizaciones:** Visualiza todas las propuestas con su estado (`ENVIADA`, `ACEPTADA_CONVERTIDA_A_ORDEN`, `BORRADOR`), empresa emisora, entidad solicitante y montos.
+  2. **Creador de Cotizaciones Desagregadas (`/cotizaciones/nueva`):**
+     * Selección de la empresa emisora (Andean Trading Company, Grupo Constructores, Inversiones del Perú).
+     * Registro de la entidad, atención, fecha y objeto del servicio.
+     * **Tabla Dinámica de Partidas:**
+       * Botón `+ Agregar Título / Grupo` (ej. *1.00 ACTIVIDADES PRELIMINARES*, *2.00 AREA DE ALTA DIRECCIÓN*).
+       * Botón `+ Agregar Partida` (Ítem ej. *1.01*, Descripción, Unidad ej. *Global*, *m2*, Cantidad y Precio Unitario).
+     * **Cálculos Automáticos:** El sistema calcula automáticamente el *Costo Directo*, *IGV (18%)*, *Total General* y genera el texto formal en letras (*SON: DIECISIETE MIL CON 00/100 SOLES*).
+     * **Condiciones Comerciales:** Validez de oferta (30 días), plazo de ejecución (10 días), garantía (12 meses), forma de pago (Contado Comercial) y lugar de ejecución.
+  3. **Formato Oficial Imprimible (`/cotizaciones/[id]`):**
+     * Genera la vista formal lista para imprimir (`Ctrl + P`) o guardar en PDF con el logotipo y membrete oficial de la empresa, tabla con bordes negros reglamentarios, cuadro de condiciones comerciales y firma de Gerencia General.
+  4. **Botón "Convertir a Orden de Servicio":**
+     * Al momento que la entidad adjudica el servicio, con **1 solo clic** la cotización se traslada al módulo de **Trazabilidad** para asignarle el N° de Orden y N° de Expediente SIAF.
+  5. **Subir Cotización Antigua (Imagen/PDF):**
+     * Permite digitalizar cotizaciones de hace años con su fecha, descripción y monto para alimentar el histórico.
 
 ---
 
-## 3. Módulos Principales y Guía Operativa
-
-### Módulo A: Buscador y Acreditador de Experiencia (`/experiencia`)
-* **Cuándo usarlo:** Cuando una entidad solicita acreditar experiencia en un rubro específico (ej. *"Se requiere experiencia acumulada no menor de S/ 50,000 en trabajos de pintura"*).
-* **Cómo operar:**
-  1. En el buscador escribe la palabra clave: `pintura`, `alfombra`, `escaleras`, `drywall`, etc.
-  2. En el recuadro **Monto Meta Requerido**, digita el valor exigido (ej. `50000`).
-  3. El sistema listará automáticamente todas las órdenes y facturas que contengan ese rubro.
-  4. Marca con el casillero `[✓]` los servicios a presentar.
-  5. La barra inferior sumará en tiempo real:
-     $$\text{Monto Acumulado: } S/\ 140,446.00 \quad (\text{Meta Superada: } 280\%)$$
-  6. Haz clic en **"Exportar Cuadro OSCE (Excel)"** para descargar la tabla oficial con el formato reglamentario listo para imprimir y foliar.
+### 📋 Módulo 2: Trazabilidad de Contrataciones (`/servicios`)
+Cubre los 8 hitos del ciclo de vida una vez asignada la orden:
+1. **Convocatoria (TDR):** Subida de las bases y términos de referencia.
+2. **Cotización:** Vinculada con su código único interno.
+3. **Expediente:** Enlace al empaquetador foliado.
+4. **Orden de Servicio (O/S):** Registro de **N° Orden de Servicio** (ej. `0000701`) y **N° Expediente SIAF** (ej. `0000001761`), plazos y PDF de la O/S.
+5. **Informe Técnico:** Carga del entregable con registro fotográfico.
+6. **Acta de Conformidad:** Registro del acta oficial firmada por la entidad.
+7. **Facturación Electrónica:** Registro de Factura SUNAT (ej. `E001-150`).
+8. **Pago SIAF & Detracción:** Constancia de abono en CCI y depósito de detracción en Banco de la Nación.
 
 ---
 
-### Módulo B: Empaquetador de Expedientes en PDF (`/empaquetador`)
-* **Cuándo usarlo:** Al momento de enviar una cotización formal a Mesa de Partes.
-* **Cómo operar:**
-  1. **Paso 1 (Empresa):** Selecciona la empresa postulante y marca los documentos requeridos:
-     - `[✓] Ficha RUC (SUNAT)`
-     - `[✓] Constancia RNP (OSCE) Vigente`
-     - `[✓] Carta de Autorización CCI (Banco)`
-     - `[✓] Declaraciones Juradas (Anexos 1, 2 y 3 Antisoborno)`
-  2. **Paso 2 (Personal Clave):** Marca los técnicos o ingenieros a asignar (ej. Carlos Sandoval Farroñan) para incluir automáticamente sus títulos y constancias laborales.
-  3. **Paso 3 (Cotización):** Confirma el monto y descripción del servicio.
-  4. Haz clic en **"Compilar y Descargar PDF"**: El sistema unirá todos los archivos y estampará en la esquina superior derecha la foliación correlativa (`0001`, `0002`, `0003`...).
+### 🔍 Módulo 3: Buscador & Acreditador de Experiencia (`/experiencia`)
+* Permite buscar por palabras clave (ej. *"pintura"*, *"alfombra"*, *"escaleras"*) en todas las facturaciones de los 15 años.
+* Permite ingresar una meta (ej. $S/\ 50,000.00$) y seleccionar las facturas: la barra inferior suma en vivo ($S/\ 109,446.00 + S/\ 31,000.00 = S/\ 140,446.00$) e indica si la meta fue superada.
+* Botón para **Exportar el Cuadro OSCE oficial a Excel (.xlsx)** con 1 clic.
 
 ---
 
-### Módulo C: Carga Rápida Histórica (15 años)
-* **Cuándo usarlo:** Para digitalizar servicios antiguos ganados hace años y que sirvan como experiencia en futuras licitaciones.
-* **Cómo operar:**
-  1. Ve a **Trazabilidad & Servicios** $\rightarrow$ botón **"Carga Rápida Histórica (15 años)"**.
-  2. Completa: Empresa, Entidad, N° de Orden, N° SIAF, N° de Factura, Fecha, Monto Total y Descripción detallada con las palabras clave del trabajo.
-  3. Guarda el registro y quedará disponible de inmediato en el buscador de experiencia.
+### 📦 Módulo 4: Empaquetador de Expedientes en PDF (`/empaquetador`)
+* Wizard interactivo para seleccionar: Empresa (RNP, RUC, CCI, DDJJs 1-3) + Técnicos (título y colegiatura) + Cotización.
+* Compila todo en un **único PDF foliado correlativamente (`0001`, `0002`...)**.
 
 ---
 
-### Módulo D: Profesionales y Semáforo de Colegiaturas (`/profesionales`)
-* Permite registrar a los técnicos e ingenieros con sus títulos y constancias laborales.
-* **Semáforo de Vigencia:**
-  * 🟢 **Vigente:** Colegiatura con más de 30 días antes de expirar.
-  * 🟡 **Por Vencer:** Alerta preventiva (menos de 30 días).
-  * 🔴 **Vencido:** Alerta crítica para solicitar la constancia de habilidad actualizada.
-
----
-
-## 4. Preguntas Frecuentes
-
-**¿Puedo usar cotizaciones que aún no tienen orden de servicio para acreditar experiencia?**
-> No. El módulo de acreditación filtra estrictamente los servicios que cuentan con **Conformidad emitida, Factura o Pago**, garantizando que no se presenten propuestas rechazadas ante el OSCE.
-
-**¿Qué pasa si mi orden de servicio es antigua y no tiene código SIAF?**
-> El sistema permite registrar órdenes históricas con o sin número SIAF mediante el formulario de Carga Rápida.
-
-**¿Dónde se guardan los archivos PDF?**
-> Se almacenan de forma segura y organizada en el servidor local del grupo empresarial, estructurados por RUC y número de servicio.
+### 👥 Módulo 5: Profesionales (`/profesionales`) & Empresas (`/empresas`)
+* Semáforo de colegiaturas (🟢 Vigente, 🟡 Por vencer, 🔴 Vencido).
+* Datos tributarios SUNAT, cuentas bancarias CCI y vigencia de RNP de las 3 empresas.
