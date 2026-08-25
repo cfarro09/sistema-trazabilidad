@@ -164,16 +164,65 @@ export default function ServicioDetallePage({
     );
   }
 
+  const statusLevels: { [key: string]: number } = {
+    COTIZACION: 2,
+    ACEPTADO_ORDEN: 4,
+    EN_EJECUCION: 5,
+    CONFORME: 6,
+    FACTURADO: 7,
+    PAGADO: 8,
+  };
+  const currentLevel = statusLevels[servicio.estado] || 2;
+
   const stages = [
-    { id: 1, key: 'tdr', name: '1. Convocatoria', sub: 'TDRs', completed: Boolean(servicio.tdrPdf || servicio.nroCotizacion) },
-    { id: 2, key: 'cotizacion', name: '2. Cotización', sub: 'Código Interno', completed: Boolean(servicio.nroCotizacion) },
-    { id: 3, key: 'expediente', name: '3. Expediente', sub: 'Preparación Docs', completed: Boolean(servicio.nroOrdenServicio || servicio.expedientePostulacionPdf) },
-    { id: 4, key: 'orden', name: '4. Orden de Servicio', sub: 'O/S y SIAF', completed: Boolean(servicio.nroOrdenServicio && servicio.nroSiaf) },
-    { id: 5, key: 'informe', name: '5. Informe', sub: 'Entregable Final', completed: Boolean(servicio.fechaInforme || servicio.informePdf) },
-    { id: 6, key: 'conformidad', name: '6. Conformidad', sub: 'Acta de Entidad', completed: Boolean(servicio.nroConformidad || servicio.fechaConformidad) },
-    { id: 7, key: 'factura', name: '7. Facturación', sub: 'Factura Electrónica', completed: Boolean(servicio.nroFactura) },
-    { id: 8, key: 'pago', name: '8. Pago SIAF', sub: 'Detracción & Cobro', completed: Boolean(servicio.fechaPago || servicio.nroOperacion) },
+    { id: 1, key: 'tdr', name: '1. Convocatoria', sub: 'TDRs', completed: true },
+    { id: 2, key: 'cotizacion', name: '2. Cotización', sub: 'Código Interno', completed: true },
+    { id: 3, key: 'expediente', name: '3. Expediente', sub: 'Preparación Docs', completed: currentLevel >= 3 || Boolean(servicio.expedientePostulacionPdf || servicio.nroOrdenServicio) },
+    { id: 4, key: 'orden', name: '4. Orden de Servicio', sub: 'O/S y SIAF', completed: currentLevel >= 4 || Boolean(servicio.nroOrdenServicio && servicio.nroSiaf) },
+    { id: 5, key: 'informe', name: '5. Informe', sub: 'Entregable Final', completed: currentLevel >= 5 || Boolean(servicio.fechaInforme || servicio.informePdf) },
+    { id: 6, key: 'conformidad', name: '6. Conformidad', sub: 'Acta de Entidad', completed: currentLevel >= 6 || Boolean(servicio.nroConformidad || servicio.fechaConformidad) },
+    { id: 7, key: 'factura', name: '7. Facturación', sub: 'Factura Electrónica', completed: currentLevel >= 7 || Boolean(servicio.nroFactura) },
+    { id: 8, key: 'pago', name: '8. Pago SIAF', sub: 'Detracción & Cobro', completed: currentLevel >= 8 || Boolean(servicio.fechaPago || servicio.nroOperacion) },
   ];
+
+  const handleMarcarHastaFacturacion = async () => {
+    const updatedData = {
+      nroOrdenServicio: formData.nroOrdenServicio || '0000701',
+      nroSiaf: formData.nroSiaf || '0000001761',
+      fechaOrden: formData.fechaOrden || '2026-08-17',
+      plazoEjecucionDias: formData.plazoEjecucionDias || '10',
+      fechaInforme: formData.fechaInforme || '2026-08-25',
+      informePdf: formData.informePdf || '/uploads/Informe_Final.pdf',
+      nroConformidad: formData.nroConformidad || 'ACTA-CONF-2026-701',
+      fechaConformidad: formData.fechaConformidad || '2026-08-26',
+      conformidadPdf: formData.conformidadPdf || '/uploads/Acta_Conformidad.pdf',
+      nroFactura: formData.nroFactura || 'E001-000155',
+      fechaFactura: formData.fechaFactura || '2026-08-26',
+      montoFacturado: formData.montoFacturado || String(servicio.montoTotal || 17000),
+      facturaPdf: formData.facturaPdf || '/uploads/Factura_Electronica.pdf',
+      estado: 'FACTURADO',
+    };
+    setFormData((prev) => ({ ...prev, ...updatedData }));
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/servicios/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setServicio(data.data);
+        setActiveTab(7);
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -192,6 +241,17 @@ export default function ServicioDetallePage({
             <span className="text-xs font-bold text-emerald-600 flex items-center gap-1 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
               <CheckCircle className="w-4 h-4" /> Cambios guardados
             </span>
+          )}
+
+          {servicio.estado !== 'FACTURADO' && servicio.estado !== 'PAGADO' && (
+            <button
+              onClick={handleMarcarHastaFacturacion}
+              disabled={saving}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/30 transition-all disabled:opacity-50"
+            >
+              <CheckCircle className="w-4 h-4" />
+              Poner en verde hasta Facturación
+            </button>
           )}
 
           <button
@@ -282,32 +342,36 @@ export default function ServicioDetallePage({
                 key={stage.id}
                 onClick={() => setActiveTab(stage.id)}
                 className={`p-3 rounded-xl text-left border transition-all relative ${
-                  isSelected
+                  stage.completed
+                    ? isSelected
+                      ? 'border-emerald-600 bg-emerald-100 shadow-sm ring-2 ring-emerald-500/30'
+                      : 'border-emerald-300 bg-emerald-50/70 hover:bg-emerald-100/80'
+                    : isSelected
                     ? 'border-blue-600 bg-blue-50/70 shadow-sm ring-2 ring-blue-500/20'
-                    : stage.completed
-                    ? 'border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50'
                     : 'border-slate-200 bg-slate-50 hover:bg-slate-100'
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
                   <span
                     className={`w-5 h-5 rounded-full font-bold text-[10px] flex items-center justify-center ${
-                      isSelected
+                      stage.completed
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : isSelected
                         ? 'bg-blue-600 text-white'
-                        : stage.completed
-                        ? 'bg-emerald-600 text-white'
                         : 'bg-slate-300 text-slate-700'
                     }`}
                   >
                     {stage.completed ? '✓' : stage.id}
                   </span>
                   {stage.completed && (
-                    <span className="text-[10px] font-bold text-emerald-700">Listo</span>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded">
+                      Listo
+                    </span>
                   )}
                 </div>
                 <div
                   className={`text-xs font-bold truncate ${
-                    isSelected ? 'text-blue-900' : 'text-slate-800'
+                    stage.completed ? 'text-emerald-950' : isSelected ? 'text-blue-900' : 'text-slate-800'
                   }`}
                 >
                   {stage.name}
