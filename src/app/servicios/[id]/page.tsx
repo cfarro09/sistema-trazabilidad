@@ -37,6 +37,8 @@ export default function ServicioDetallePage({
 
   // Form states for updates
   const [formData, setFormData] = useState({
+    nroCotizacion: '',
+    fechaCotizacion: '',
     nroOrdenServicio: '',
     nroSiaf: '',
     fechaOrden: '',
@@ -70,6 +72,8 @@ export default function ServicioDetallePage({
       if (data.success) {
         setServicio(data.data);
         setFormData({
+          nroCotizacion: data.data.nroCotizacion || data.data.codigoInterno || '',
+          fechaCotizacion: data.data.fechaCotizacion ? data.data.fechaCotizacion.substring(0, 10) : '',
           nroOrdenServicio: data.data.nroOrdenServicio || '',
           nroSiaf: data.data.nroSiaf || '',
           fechaOrden: data.data.fechaOrden ? data.data.fechaOrden.substring(0, 10) : '',
@@ -501,15 +505,25 @@ export default function ServicioDetallePage({
               <p className="text-xs text-slate-500">Manejo del código único interno hasta recibir la orden de servicio</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">N° de Cotización</label>
                 <input
                   type="text"
-                  value={formData.nroOrdenServicio ? servicio.nroCotizacion || servicio.codigoInterno : formData.nroOrdenServicio}
+                  value={formData.nroCotizacion}
+                  onChange={(e) => setFormData({ ...formData, nroCotizacion: e.target.value })}
                   placeholder="Ej. 00175-26"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold"
-                  readOnly
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-blue-700 focus:bg-white focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Fecha de Cotización</label>
+                <input
+                  type="date"
+                  value={formData.fechaCotizacion}
+                  onChange={(e) => setFormData({ ...formData, fechaCotizacion: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -531,6 +545,28 @@ export default function ServicioDetallePage({
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono"
                   readOnly
                 />
+              </div>
+            </div>
+
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center justify-between">
+              <div>
+                <span className="text-xs font-bold text-slate-800 block">PDF de la Cotización Formal</span>
+                <span className="text-[11px] text-slate-500">Documento con el membrete de la empresa y desglose de partidas</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleSimulateUpload('cotizacionPdf', 'Cotizacion_Formal.pdf')}
+                  className="flex items-center gap-2 px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-xs"
+                >
+                  <Upload className="w-4 h-4" />
+                  Subir Cotización (PDF)
+                </button>
+                {formData.cotizacionPdf && (
+                  <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
+                    ✓ PDF adjuntado
+                  </span>
+                )}
               </div>
             </div>
 

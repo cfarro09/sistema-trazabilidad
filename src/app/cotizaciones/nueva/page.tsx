@@ -34,30 +34,26 @@ export default function NuevaCotizacionPage() {
 
   // Form State
   const [empresaId, setEmpresaId] = useState('');
-  const [numero, setNumero] = useState('00175 - 26');
-  const [entidad, setEntidad] = useState('SUPERINTENDENCIA NACIONAL DE SALUD');
-  const [atencion, setAtencion] = useState('Unidad de Logística');
-  const [fecha, setFecha] = useState('2026-08-13');
-  const [objetoServicio, setObjetoServicio] = useState(
-    'SERVICIO DE PINTADO DE LAS OFICINAS DE ALTA DIRECCIÓN CORRESPONDIENTES A LA GERENCIA GENERAL Y A LA SUPERINTENDENCIA, UBICADAS EN EL PRIMER PISO DEL PABELLÓN "B" DE LA SUPERINTENDENCIA NACIONAL DE SALUD'
-  );
-  const [ubicacion, setUbicacion] = useState('Av. Velasco Astete N° 1398, Santiago de Surco, torre "B", primer piso.');
+  const [numero, setNumero] = useState('');
+  const [entidad, setEntidad] = useState('');
+  const [atencion, setAtencion] = useState('');
+  const [fecha, setFecha] = useState(new Date().toISOString().substring(0, 10));
+  const [objetoServicio, setObjetoServicio] = useState('');
+  const [ubicacion, setUbicacion] = useState('');
 
   // Commercial Conditions
   const [validezOferta, setValidezOferta] = useState('30 días');
   const [tiempoEjecucion, setTiempoEjecucion] = useState('10 días calendarios');
   const [garantia, setGarantia] = useState('12 meses');
   const [formaPago, setFormaPago] = useState('Contado Comercial');
-  const [lugarEjecucion, setLugarEjecucion] = useState(
-    'Av. Velasco Astete N° 1398, Santiago de Surco, torre "B", primer piso.'
-  );
+  const [lugarEjecucion, setLugarEjecucion] = useState('');
 
-  // Table of Items
+  // Table of Items (Starts clean)
   const [items, setItems] = useState<ItemRow[]>([
     {
       id: '1',
       item: '1.00',
-      descripcion: 'ACTIVIDADES PRELIMINARES',
+      descripcion: 'TRABAJOS PRINCIPALES',
       unidad: 'Global',
       cantidad: 1,
       precioUnitario: 0,
@@ -67,94 +63,11 @@ export default function NuevaCotizacionPage() {
     {
       id: '2',
       item: '1.01',
-      descripcion: 'Traslado de equipos, materiales y herramientas.',
-      unidad: 'Global',
-      cantidad: 1,
-      precioUnitario: 500,
-      precioParcial: 500,
-      esTitulo: false,
-    },
-    {
-      id: '3',
-      item: '1.02',
-      descripcion:
-        'Protección del área de trabajo, seguridad, señalización, equipos de protección personal (EPP) y seguros para el personal',
-      unidad: 'Global',
-      cantidad: 1,
-      precioUnitario: 700,
-      precioParcial: 700,
-      esTitulo: false,
-    },
-    {
-      id: '4',
-      item: '1.03',
-      descripcion: 'Limpieza en general y eliminación de residuos y excedente.',
-      unidad: 'Global',
-      cantidad: 1,
-      precioUnitario: 900,
-      precioParcial: 900,
-      esTitulo: false,
-    },
-    {
-      id: '5',
-      item: '2.00',
-      descripcion: 'AREA DE ALTA DIRECCION',
+      descripcion: '',
       unidad: 'Global',
       cantidad: 1,
       precioUnitario: 0,
       precioParcial: 0,
-      esTitulo: true,
-    },
-    {
-      id: '6',
-      item: '2.01',
-      descripcion: 'Retiro de tarugos, tornillos y clavos para el resane de las paredes',
-      unidad: 'Global',
-      cantidad: 1,
-      precioUnitario: 400,
-      precioParcial: 400,
-      esTitulo: false,
-    },
-    {
-      id: '7',
-      item: '2.02',
-      descripcion: 'Resane, masillado y lijado de paredes dañadas',
-      unidad: 'Global',
-      cantidad: 1,
-      precioUnitario: 900,
-      precioParcial: 900,
-      esTitulo: false,
-    },
-    {
-      id: '8',
-      item: '2.03',
-      descripcion:
-        'Pintura latex satinado (2 manos en paredes) Aprox. 416 m2 (color a elección de la entidad)',
-      unidad: 'Global',
-      cantidad: 1,
-      precioUnitario: 9568,
-      precioParcial: 9568,
-      esTitulo: false,
-    },
-    {
-      id: '9',
-      item: '2.04',
-      descripcion: 'Pintura latex (2 manos en paredes) Aprox. 37 m2 (color a elección de la entidad)',
-      unidad: 'Global',
-      cantidad: 1,
-      precioUnitario: 666,
-      precioParcial: 666,
-      esTitulo: false,
-    },
-    {
-      id: '10',
-      item: '2.05',
-      descripcion:
-        'Retiro de laminado y pavonado existente de lunas de 4 hojas, incluyendo desmontaje, retiro, limpieza, colocación de nuevo pavonado y reinstalación, para 04 hojas de 0.86 × 1.19 m y 04 hojas de 0.45 × 0.88 m.',
-      unidad: 'Global',
-      cantidad: 1,
-      precioUnitario: 772.78,
-      precioParcial: 772.78,
       esTitulo: false,
     },
   ]);
