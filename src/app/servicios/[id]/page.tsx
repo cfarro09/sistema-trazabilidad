@@ -53,6 +53,7 @@ export default function ServicioDetallePage({
     estado: '',
     tdrPdf: '',
     cotizacionPdf: '',
+    expedientePostulacionPdf: '',
     ordenServicioPdf: '',
     informePdf: '',
     conformidadPdf: '',
@@ -85,6 +86,7 @@ export default function ServicioDetallePage({
           estado: data.data.estado || 'COTIZACION',
           tdrPdf: data.data.tdrPdf || '',
           cotizacionPdf: data.data.cotizacionPdf || '',
+          expedientePostulacionPdf: data.data.expedientePostulacionPdf || '',
           ordenServicioPdf: data.data.ordenServicioPdf || '',
           informePdf: data.data.informePdf || '',
           conformidadPdf: data.data.conformidadPdf || '',
@@ -112,13 +114,13 @@ export default function ServicioDetallePage({
     fetchServicio();
   }, [id]);
 
-  const handleSave = async (newState?: string) => {
+  const handleSave = async (newState?: string, customData?: any) => {
     setSaving(true);
     try {
-      const payload: any = { ...formData };
+      const payload: any = { ...formData, ...(customData || {}) };
       if (newState) {
         payload.estado = newState;
-        setFormData((prev) => ({ ...prev, estado: newState }));
+        setFormData((prev) => ({ ...prev, estado: newState, ...(customData || {}) }));
       }
 
       const res = await fetch(`/api/servicios/${id}`, {
@@ -139,10 +141,60 @@ export default function ServicioDetallePage({
     }
   };
 
-  const handleSimulateUpload = (field: string, defaultName: string) => {
+  const handleSimulateUpload = async (field: string, defaultName: string) => {
     const dummyUrl = `/uploads/${defaultName}`;
-    setFormData((prev) => ({ ...prev, [field]: dummyUrl }));
-    alert(`Documento "${defaultName}" adjuntado al expediente.`);
+    const nextForm = { ...formData, [field]: dummyUrl };
+    setFormData(nextForm);
+    await handleSave(undefined, { [field]: dummyUrl });
+    alert(`Documento "${defaultName}" adjuntado y guardado con éxito.`);
+  };
+
+  const handleCompletarEtapa = async (stageId: number) => {
+    let patch: any = {};
+    let nextState = servicio.estado;
+    let nextTab = Math.min(stageId + 1, 8);
+
+    if (stageId === 1) {
+      patch.tdrPdf = formData.tdrPdf || '/uploads/TDR_Convocatoria.pdf';
+    } else if (stageId === 2) {
+      patch.cotizacionPdf = formData.cotizacionPdf || '/uploads/Cotizacion_Formal.pdf';
+      nextState = 'COTIZACION';
+    } else if (stageId === 3) {
+      patch.expedientePostulacionPdf = formData.expedientePostulacionPdf || '/uploads/Expediente_Postulacion.pdf';
+    } else if (stageId === 4) {
+      patch.nroOrdenServicio = formData.nroOrdenServicio || '0000701';
+      patch.nroSiaf = formData.nroSiaf || '0000001761';
+      patch.fechaOrden = formData.fechaOrden || '2026-08-17';
+      patch.plazoEjecucionDias = formData.plazoEjecucionDias || '10';
+      patch.ordenServicioPdf = formData.ordenServicioPdf || '/uploads/Orden_Servicio.pdf';
+      nextState = 'ACEPTADO_ORDEN';
+    } else if (stageId === 5) {
+      patch.fechaInforme = formData.fechaInforme || '2026-08-25';
+      patch.informePdf = formData.informePdf || '/uploads/Informe_Final_Servicio.pdf';
+      nextState = 'CONFORME';
+    } else if (stageId === 6) {
+      patch.nroConformidad = formData.nroConformidad || 'ACTA-CONF-2026-701';
+      patch.fechaConformidad = formData.fechaConformidad || '2026-08-26';
+      patch.conformidadPdf = formData.conformidadPdf || '/uploads/Acta_Conformidad_Firmada.pdf';
+      nextState = 'CONFORME';
+    } else if (stageId === 7) {
+      patch.nroFactura = formData.nroFactura || 'E001-000155';
+      patch.fechaFactura = formData.fechaFactura || '2026-08-26';
+      patch.montoFacturado = formData.montoFacturado || String(servicio.montoTotal || 17000);
+      patch.facturaPdf = formData.facturaPdf || '/uploads/Factura_Electronica.pdf';
+      nextState = 'FACTURADO';
+    } else if (stageId === 8) {
+      patch.fechaPago = formData.fechaPago || '2026-08-30';
+      patch.nroOperacion = formData.nroOperacion || '284329542';
+      patch.montoPagado = formData.montoPagado || String(servicio.montoTotal || 17000);
+      patch.pagoPdf = formData.pagoPdf || '/uploads/Comprobante_Pago_SIAF.pdf';
+      patch.detraccionPdf = formData.detraccionPdf || '/uploads/Constancia_Detraccion_BN.pdf';
+      nextState = 'PAGADO';
+    }
+
+    setFormData((prev) => ({ ...prev, ...patch }));
+    await handleSave(nextState, patch);
+    setActiveTab(nextTab);
   };
 
   if (loading) {
@@ -427,6 +479,17 @@ export default function ServicioDetallePage({
                 </div>
               </div>
             </div>
+
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-xs text-slate-500 font-medium">¿Términos de Referencia revisados y conformes?</span>
+              <button
+                type="button"
+                onClick={() => handleCompletarEtapa(1)}
+                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
+              >
+                <CheckCircle className="w-4 h-4" /> Marcar Convocatoria como Lista y Avanzar $\rightarrow$
+              </button>
+            </div>
           </div>
         )}
 
@@ -471,21 +534,14 @@ export default function ServicioDetallePage({
               </div>
             </div>
 
-            <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 flex items-center justify-between">
-              <div>
-                <h4 className="text-xs font-bold text-amber-900">¿La entidad aprobó la cotización?</h4>
-                <p className="text-[11px] text-amber-700">
-                  Al recibir la Orden de Servicio, avanza de fase para registrar el N° de Orden y N° SIAF.
-                </p>
-              </div>
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-xs text-slate-500 font-medium">¿Cotización elaborada y enviada a la entidad?</span>
               <button
-                onClick={() => {
-                  setActiveTab(4);
-                  handleSave('ACEPTADO_ORDEN');
-                }}
-                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-xs"
+                type="button"
+                onClick={() => handleCompletarEtapa(2)}
+                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
               >
-                Cotización Aceptada $\rightarrow$ Registrar O/S
+                <CheckCircle className="w-4 h-4" /> Marcar Cotización como Lista y Avanzar $\rightarrow$
               </button>
             </div>
           </div>
@@ -512,6 +568,17 @@ export default function ServicioDetallePage({
               >
                 Ir al Empaquetador de Expedientes $\rightarrow$
               </Link>
+            </div>
+
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-xs text-slate-500 font-medium">¿Expediente técnico y legal listo?</span>
+              <button
+                type="button"
+                onClick={() => handleCompletarEtapa(3)}
+                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
+              >
+                <CheckCircle className="w-4 h-4" /> Marcar Expediente como Listo y Avanzar $\rightarrow$
+              </button>
             </div>
           </div>
         )}
@@ -582,11 +649,23 @@ export default function ServicioDetallePage({
                 <span className="text-[11px] text-slate-500">Documento sellado por la Oficina de Logística</span>
               </div>
               <button
+                type="button"
                 onClick={() => handleSimulateUpload('ordenServicioPdf', 'Orden_Servicio_0000701_SUSALUD.pdf')}
                 className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold"
               >
                 <Upload className="w-4 h-4" />
                 Subir O/S (PDF)
+              </button>
+            </div>
+
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-xs text-slate-500 font-medium">¿N° de Orden de Servicio y SIAF registrados?</span>
+              <button
+                type="button"
+                onClick={() => handleCompletarEtapa(4)}
+                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
+              >
+                <CheckCircle className="w-4 h-4" /> Marcar Orden de Servicio (SIAF) como Lista y Avanzar $\rightarrow$
               </button>
             </div>
           </div>
@@ -617,6 +696,7 @@ export default function ServicioDetallePage({
                   <span className="text-[11px] text-slate-500">PDF con sustento de actividades ejecutadas</span>
                 </div>
                 <button
+                  type="button"
                   onClick={() => handleSimulateUpload('informePdf', 'Informe_Final_Servicio.pdf')}
                   className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold"
                 >
@@ -624,6 +704,17 @@ export default function ServicioDetallePage({
                   Subir Informe
                 </button>
               </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-xs text-slate-500 font-medium">¿Trabajos concluidos e Informe Técnico presentado?</span>
+              <button
+                type="button"
+                onClick={() => handleCompletarEtapa(5)}
+                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
+              >
+                <CheckCircle className="w-4 h-4" /> Marcar Informe Técnico como Listo y Avanzar $\rightarrow$
+              </button>
             </div>
           </div>
         )}
@@ -665,11 +756,23 @@ export default function ServicioDetallePage({
                 <span className="text-[11px] text-emerald-700">Documento obligatorio para emitir la factura</span>
               </div>
               <button
+                type="button"
                 onClick={() => handleSimulateUpload('conformidadPdf', 'Acta_Conformidad_Firmada.pdf')}
                 className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-xs"
               >
                 <Upload className="w-4 h-4" />
                 Subir Acta Conformidad
+              </button>
+            </div>
+
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-xs text-slate-500 font-medium">¿Acta de Conformidad firmada y recibida?</span>
+              <button
+                type="button"
+                onClick={() => handleCompletarEtapa(6)}
+                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
+              >
+                <CheckCircle className="w-4 h-4" /> Marcar Conformidad como Lista y Avanzar $\rightarrow$
               </button>
             </div>
           </div>
@@ -724,11 +827,23 @@ export default function ServicioDetallePage({
                 <span className="text-[11px] text-teal-700">Evidencia para acreditar experiencia en licitaciones</span>
               </div>
               <button
+                type="button"
                 onClick={() => handleSimulateUpload('facturaPdf', 'Factura_E001_150_SUNAT.pdf')}
                 className="flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-bold shadow-xs"
               >
                 <Upload className="w-4 h-4" />
                 Subir Factura (PDF)
+              </button>
+            </div>
+
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-xs text-slate-500 font-medium">¿Factura emitida y entregada a la entidad?</span>
+              <button
+                type="button"
+                onClick={() => handleCompletarEtapa(7)}
+                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
+              >
+                <CheckCircle className="w-4 h-4" /> Marcar Facturación como Lista y Avanzar $\rightarrow$
               </button>
             </div>
           </div>
