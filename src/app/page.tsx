@@ -213,8 +213,8 @@ export default async function DashboardPage() {
             { num: '3', name: 'Expediente', sub: 'PDF Foliado', color: 'bg-blue-50 text-blue-700 border-blue-200' },
             { num: '4', name: 'Orden O/S', sub: 'N° SIAF', color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
             { num: '5', name: 'Informe Final', sub: 'Entregable', color: 'bg-purple-50 text-purple-700 border-purple-200' },
-            { num: '6', name: 'Conformidad', sub: 'Acta Oficial', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-            { num: '7', name: 'Facturación', sub: 'Comprobante', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+            { num: '6', name: 'Facturación', sub: 'Comprobante', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+            { num: '7', name: 'Conformidad', sub: 'Acta Oficial', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
             { num: '8', name: 'Pago SIAF', sub: 'Detracción', color: 'bg-green-100 text-green-800 border-green-300' },
           ].map((step, idx) => (
             <div

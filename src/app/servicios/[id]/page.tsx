@@ -175,19 +175,22 @@ export default function ServicioDetallePage({
     } else if (stageId === 5) {
       patch.fechaInforme = formData.fechaInforme || '2026-08-25';
       patch.informePdf = formData.informePdf || '/uploads/Informe_Final_Servicio.pdf';
-      nextState = 'CONFORME';
+      nextState = 'EN_EJECUCION';
     } else if (stageId === 6) {
-      patch.nroConformidad = formData.nroConformidad || 'ACTA-CONF-2026-701';
-      patch.fechaConformidad = formData.fechaConformidad || '2026-08-26';
-      patch.conformidadPdf = formData.conformidadPdf || '/uploads/Acta_Conformidad_Firmada.pdf';
-      nextState = 'CONFORME';
-    } else if (stageId === 7) {
+      // HITO 6: FACTURACIÓN
       patch.nroFactura = formData.nroFactura || 'E001-000155';
       patch.fechaFactura = formData.fechaFactura || '2026-08-26';
       patch.montoFacturado = formData.montoFacturado || String(servicio.montoTotal || 17000);
       patch.facturaPdf = formData.facturaPdf || '/uploads/Factura_Electronica.pdf';
       nextState = 'FACTURADO';
+    } else if (stageId === 7) {
+      // HITO 7: CONFORMIDAD
+      patch.nroConformidad = formData.nroConformidad || 'ACTA-CONF-2026-701';
+      patch.fechaConformidad = formData.fechaConformidad || '2026-08-26';
+      patch.conformidadPdf = formData.conformidadPdf || '/uploads/Acta_Conformidad_Firmada.pdf';
+      nextState = 'CONFORME';
     } else if (stageId === 8) {
+      // HITO 8: PAGO
       patch.fechaPago = formData.fechaPago || '2026-08-30';
       patch.nroOperacion = formData.nroOperacion || '284329542';
       patch.montoPagado = formData.montoPagado || String(servicio.montoTotal || 17000);
@@ -224,8 +227,8 @@ export default function ServicioDetallePage({
     COTIZACION: 2,
     ACEPTADO_ORDEN: 4,
     EN_EJECUCION: 5,
-    CONFORME: 6,
-    FACTURADO: 7,
+    FACTURADO: 6,
+    CONFORME: 7,
     PAGADO: 8,
   };
   const currentLevel = statusLevels[servicio.estado] || 2;
@@ -236,8 +239,8 @@ export default function ServicioDetallePage({
     { id: 3, key: 'expediente', name: '3. Expediente', sub: 'Preparación Docs', completed: currentLevel >= 3 || Boolean(servicio.expedientePostulacionPdf || servicio.nroOrdenServicio) },
     { id: 4, key: 'orden', name: '4. Orden de Servicio', sub: 'O/S y SIAF', completed: currentLevel >= 4 || Boolean(servicio.nroOrdenServicio && servicio.nroSiaf) },
     { id: 5, key: 'informe', name: '5. Informe', sub: 'Entregable Final', completed: currentLevel >= 5 || Boolean(servicio.fechaInforme || servicio.informePdf) },
-    { id: 6, key: 'conformidad', name: '6. Conformidad', sub: 'Acta de Entidad', completed: currentLevel >= 6 || Boolean(servicio.nroConformidad || servicio.fechaConformidad) },
-    { id: 7, key: 'factura', name: '7. Facturación', sub: 'Factura Electrónica', completed: currentLevel >= 7 || Boolean(servicio.nroFactura) },
+    { id: 6, key: 'factura', name: '6. Facturación', sub: 'Factura Electrónica', completed: currentLevel >= 6 || Boolean(servicio.nroFactura) },
+    { id: 7, key: 'conformidad', name: '7. Conformidad', sub: 'Acta de Entidad', completed: currentLevel >= 7 || Boolean(servicio.nroConformidad || servicio.fechaConformidad) },
     { id: 8, key: 'pago', name: '8. Pago SIAF', sub: 'Detracción & Cobro', completed: currentLevel >= 8 || Boolean(servicio.fechaPago || servicio.nroOperacion) },
   ];
 
@@ -755,71 +758,12 @@ export default function ServicioDetallePage({
           </div>
         )}
 
-        {/* HITO 6: Conformidad de la Entidad */}
+        {/* HITO 6: Facturación Electrónica */}
         {activeTab === 6 && (
           <div className="space-y-4">
             <div className="border-b border-slate-100 pb-3">
-              <h3 className="text-base font-bold text-slate-900">6. Acta de Conformidad de la Prestación</h3>
-              <p className="text-xs text-slate-500">Emitida por el área usuaria / Jefe de Logística de la entidad</p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">N° de Acta / Constancia de Conformidad</label>
-                <input
-                  type="text"
-                  placeholder="Ej. ACTA-CONF-2026-701 o Constancia 012-2026"
-                  value={formData.nroConformidad}
-                  onChange={(e) => setFormData({ ...formData, nroConformidad: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:bg-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Fecha de Emisión de Conformidad</label>
-                <input
-                  type="date"
-                  value={formData.fechaConformidad}
-                  onChange={(e) => setFormData({ ...formData, fechaConformidad: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200 flex items-center justify-between">
-              <div>
-                <span className="text-xs font-bold text-emerald-900 block">PDF del Acta de Conformidad Firmada</span>
-                <span className="text-[11px] text-emerald-700">Documento obligatorio para emitir la factura</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleSimulateUpload('conformidadPdf', 'Acta_Conformidad_Firmada.pdf')}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-xs"
-              >
-                <Upload className="w-4 h-4" />
-                Subir Acta Conformidad
-              </button>
-            </div>
-
-            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-xs text-slate-500 font-medium">¿Acta de Conformidad firmada y recibida?</span>
-              <button
-                type="button"
-                onClick={() => handleCompletarEtapa(6)}
-                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
-              >
-                <CheckCircle className="w-4 h-4" /> Marcar Conformidad como Lista y Avanzar $\rightarrow$
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* HITO 7: Facturación */}
-        {activeTab === 7 && (
-          <div className="space-y-4">
-            <div className="border-b border-slate-100 pb-3">
-              <h3 className="text-base font-bold text-slate-900">7. Facturación Electrónica</h3>
-              <p className="text-xs text-slate-500">Emisión del comprobante de pago electrónico tras la conformidad</p>
+              <h3 className="text-base font-bold text-slate-900">6. Facturación Electrónica</h3>
+              <p className="text-xs text-slate-500">Emisión del comprobante de pago electrónico tras culminar los servicios</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -860,7 +804,7 @@ export default function ServicioDetallePage({
             <div className="bg-teal-50 p-4 rounded-xl border border-teal-200 flex items-center justify-between">
               <div>
                 <span className="text-xs font-bold text-teal-900 block">PDF / XML de Factura Electrónica SUNAT</span>
-                <span className="text-[11px] text-teal-700">Evidencia para acreditar experiencia en licitaciones</span>
+                <span className="text-[11px] text-teal-700">Evidencia para sustentar la prestación y posterior cobro</span>
               </div>
               <button
                 type="button"
@@ -876,10 +820,69 @@ export default function ServicioDetallePage({
               <span className="text-xs text-slate-500 font-medium">¿Factura emitida y entregada a la entidad?</span>
               <button
                 type="button"
-                onClick={() => handleCompletarEtapa(7)}
+                onClick={() => handleCompletarEtapa(6)}
                 className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
               >
                 <CheckCircle className="w-4 h-4" /> Marcar Facturación como Lista y Avanzar $\rightarrow$
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* HITO 7: Conformidad de la Entidad */}
+        {activeTab === 7 && (
+          <div className="space-y-4">
+            <div className="border-b border-slate-100 pb-3">
+              <h3 className="text-base font-bold text-slate-900">7. Acta de Conformidad de la Prestación</h3>
+              <p className="text-xs text-slate-500">Emitida por el área usuaria / Jefe de Logística tras recibir la factura y el informe</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">N° de Acta / Constancia de Conformidad</label>
+                <input
+                  type="text"
+                  placeholder="Ej. ACTA-CONF-2026-701 o Constancia 012-2026"
+                  value={formData.nroConformidad}
+                  onChange={(e) => setFormData({ ...formData, nroConformidad: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:bg-white focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Fecha de Emisión de Conformidad</label>
+                <input
+                  type="date"
+                  value={formData.fechaConformidad}
+                  onChange={(e) => setFormData({ ...formData, fechaConformidad: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200 flex items-center justify-between">
+              <div>
+                <span className="text-xs font-bold text-emerald-900 block">PDF del Acta de Conformidad Firmada</span>
+                <span className="text-[11px] text-emerald-700">Documento obligatorio para que la entidad gire el pago</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleSimulateUpload('conformidadPdf', 'Acta_Conformidad_Firmada.pdf')}
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-xs"
+              >
+                <Upload className="w-4 h-4" />
+                Subir Acta Conformidad
+              </button>
+            </div>
+
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-xs text-slate-500 font-medium">¿Acta de Conformidad firmada y recibida?</span>
+              <button
+                type="button"
+                onClick={() => handleCompletarEtapa(7)}
+                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
+              >
+                <CheckCircle className="w-4 h-4" /> Marcar Conformidad como Lista y Avanzar $\rightarrow$
               </button>
             </div>
           </div>

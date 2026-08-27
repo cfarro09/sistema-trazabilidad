@@ -13,8 +13,15 @@ import {
   FileSpreadsheet,
   CheckCircle,
   FileText,
+  Search,
+  X,
+  Hammer,
+  Layers,
+  HardHat,
+  Wrench,
 } from 'lucide-react';
 import { numeroALetrasSoles } from '@/lib/number-to-letters';
+import { PARTIDAS_PRESUPUESTO, INSUMOS_PRECIOS } from '@/lib/costos-directos-data';
 
 interface ItemRow {
   id: string;
@@ -31,6 +38,12 @@ export default function NuevaCotizacionPage() {
   const router = useRouter();
   const [empresas, setEmpresas] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
+
+  // Modal Costos Directos
+  const [modalCostosOpen, setModalCostosOpen] = useState(false);
+  const [targetRowIdForCostos, setTargetRowIdForCostos] = useState<string | null>(null);
+  const [searchCostos, setSearchCostos] = useState('');
+  const [filtroCostos, setFiltroCostos] = useState<string>('ALL');
 
   // Form State
   const [empresaId, setEmpresaId] = useState('');
@@ -136,6 +149,46 @@ export default function NuevaCotizacionPage() {
 
   const removeItem = (id: string) => {
     setItems((prev) => prev.filter((i) => i.id !== id));
+  };
+
+  const handleSelectCostosItem = (item: {
+    codigo?: string;
+    descripcion: string;
+    unidad: string;
+    precioUnitario: number;
+  }) => {
+    if (targetRowIdForCostos) {
+      // Update existing row
+      updateItem(targetRowIdForCostos, 'descripcion', item.descripcion);
+      updateItem(targetRowIdForCostos, 'unidad', item.unidad);
+      updateItem(targetRowIdForCostos, 'precioUnitario', item.precioUnitario);
+      if (item.codigo) updateItem(targetRowIdForCostos, 'item', item.codigo);
+    } else {
+      // Append new row
+      const newId = String(Date.now());
+      const nextNum = `1.0${items.filter((i) => !i.esTitulo).length + 1}`;
+      setItems((prev) => [
+        ...prev,
+        {
+          id: newId,
+          item: item.codigo || nextNum,
+          descripcion: item.descripcion,
+          unidad: item.unidad,
+          cantidad: 1,
+          precioUnitario: item.precioUnitario,
+          precioParcial: item.precioUnitario,
+          esTitulo: false,
+        },
+      ]);
+    }
+    setModalCostosOpen(false);
+    setTargetRowIdForCostos(null);
+  };
+
+  const openCostosModal = (targetRowId: string | null = null) => {
+    setTargetRowIdForCostos(targetRowId);
+    setSearchCostos('');
+    setModalCostosOpen(true);
   };
 
   // Calculations
@@ -306,7 +359,15 @@ export default function NuevaCotizacionPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => openCostosModal(null)}
+              className="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs"
+            >
+              <Search className="w-3.5 h-3.5 text-indigo-600" />
+              🔍 Buscar en Costos Directos
+            </button>
             <button
               type="button"
               onClick={addGroupTitle}
@@ -334,7 +395,7 @@ export default function NuevaCotizacionPage() {
                 <th className="p-2.5 w-20 text-center border-r border-slate-800">CANT.</th>
                 <th className="p-2.5 w-28 text-right border-r border-slate-800">P. UNIT (S/)</th>
                 <th className="p-2.5 w-28 text-right border-r border-slate-800">P. PARCIAL (S/)</th>
-                <th className="p-2.5 w-10 text-center"></th>
+                <th className="p-2.5 w-16 text-center">ACCIONES</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -382,21 +443,31 @@ export default function NuevaCotizacionPage() {
                         className="w-full text-center font-mono font-bold text-slate-800 focus:outline-none"
                       />
                     </td>
-                    <td className="p-2 border-r border-slate-200">
-                      <textarea
-                        rows={2}
-                        value={row.descripcion}
-                        onChange={(e) => updateItem(row.id, 'descripcion', e.target.value)}
-                        placeholder="Descripción de la partida..."
-                        className="w-full text-xs text-slate-700 bg-transparent focus:outline-none resize-none"
-                      ></textarea>
+                    <td className="p-2 border-r border-slate-200 relative">
+                      <div className="flex items-start gap-1">
+                        <textarea
+                          rows={2}
+                          value={row.descripcion}
+                          onChange={(e) => updateItem(row.id, 'descripcion', e.target.value)}
+                          placeholder="Descripción de la partida..."
+                          className="w-full text-xs text-slate-700 bg-transparent focus:outline-none resize-none"
+                        ></textarea>
+                        <button
+                          type="button"
+                          title="Buscar precio referencial en catálogo de Costos Directos"
+                          onClick={() => openCostosModal(row.id)}
+                          className="p-1 text-indigo-500 hover:bg-indigo-50 rounded-lg shrink-0 transition-colors"
+                        >
+                          <Search className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                     <td className="p-2 border-r border-slate-200">
                       <input
                         type="text"
                         value={row.unidad}
                         onChange={(e) => updateItem(row.id, 'unidad', e.target.value)}
-                        className="w-full text-center text-slate-600 focus:outline-none"
+                        className="w-full text-center text-slate-600 focus:outline-none font-bold"
                       />
                     </td>
                     <td className="p-2 border-r border-slate-200">
@@ -421,13 +492,23 @@ export default function NuevaCotizacionPage() {
                       S/ {row.precioParcial.toFixed(2)}
                     </td>
                     <td className="p-2 text-center">
-                      <button
-                        type="button"
-                        onClick={() => removeItem(row.id)}
-                        className="text-slate-400 hover:text-rose-600"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          type="button"
+                          title="Buscar en catálogo"
+                          onClick={() => openCostosModal(row.id)}
+                          className="p-1 text-slate-400 hover:text-indigo-600"
+                        >
+                          <Search className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeItem(row.id)}
+                          className="p-1 text-slate-400 hover:text-rose-600"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -528,6 +609,211 @@ export default function NuevaCotizacionPage() {
           />
         </div>
       </div>
+
+      {/* MODAL: BUSCADOR DE PRECIOS Y COSTOS DIRECTOS */}
+      {modalCostosOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl overflow-hidden border border-slate-200 max-h-[88vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="p-5 bg-slate-900 text-white flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-indigo-600 rounded-xl text-white">
+                  <Calculator className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    Banco de Precios Unitarios & Costos Directos
+                  </h3>
+                  <p className="text-xs text-indigo-200">
+                    {targetRowIdForCostos
+                      ? 'Selecciona una partida o insumo para actualizar la fila seleccionada'
+                      : 'Selecciona una partida o insumo para insertarla en la cotización'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setModalCostosOpen(false)}
+                className="text-slate-400 hover:text-white p-1 rounded-xl hover:bg-slate-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Search & Filters */}
+            <div className="p-4 bg-slate-50 border-b border-slate-200 space-y-3">
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  autoFocus
+                  placeholder="Escribe para buscar (ej. Pintura látex, Tarrajeo, Concreto, Inodoro, Tubería, Peón, Operario...)"
+                  value={searchCostos}
+                  onChange={(e) => setSearchCostos(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-medium"
+                />
+              </div>
+
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+                {[
+                  { id: 'ALL', label: 'Todos' },
+                  { id: 'OE', label: 'Obras Edificación (OE)' },
+                  { id: 'ARQUITECTURA', label: 'Arquitectura' },
+                  { id: 'ESTRUCTURAS', label: 'Estructuras' },
+                  { id: 'SANITARIAS', label: 'Sanitarias' },
+                  { id: 'ELECTRICAS', label: 'Eléctricas' },
+                  { id: 'MATERIAL', label: 'Materiales' },
+                  { id: 'MANO_DE_OBRA', label: 'Mano de Obra (CAPECO)' },
+                  { id: 'EQUIPO', label: 'Equipos / Maquinarias' },
+                ].map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setFiltroCostos(f.id)}
+                    className={`px-3 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all ${
+                      filtroCostos === f.id
+                        ? 'bg-indigo-600 text-white shadow-xs'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal Results List */}
+            <div className="p-4 overflow-y-auto flex-1 divide-y divide-slate-100 space-y-1">
+              {/* Partidas matches */}
+              {PARTIDAS_PRESUPUESTO.filter((p) => {
+                const matchesFiltro =
+                  filtroCostos === 'ALL' ||
+                  filtroCostos === 'OE' ||
+                  p.especialidad === filtroCostos;
+                const matchesText =
+                  !searchCostos ||
+                  p.item.toLowerCase().includes(searchCostos.toLowerCase()) ||
+                  p.partida.toLowerCase().includes(searchCostos.toLowerCase());
+                return matchesFiltro && matchesText;
+              }).map((p) => (
+                <div
+                  key={`partida-${p.item}`}
+                  className="py-2.5 px-3 rounded-xl hover:bg-indigo-50/50 transition-colors flex items-center justify-between gap-4 group"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                        {p.item}
+                      </span>
+                      <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">
+                        {p.especialidad}
+                      </span>
+                      <span className="text-xs font-bold text-slate-900">{p.partida}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 shrink-0">
+                    <div className="text-right">
+                      <div className="text-[10px] text-slate-400">Unidad: {p.unidad}</div>
+                      <div className="text-sm font-black text-indigo-700 font-mono">
+                        S/ {p.precioUnitario.toFixed(2)}
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleSelectCostosItem({
+                          codigo: p.item,
+                          descripcion: p.partida,
+                          unidad: p.unidad,
+                          precioUnitario: p.precioUnitario,
+                        })
+                      }
+                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1 shadow-xs transition-all group-hover:scale-105"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      {targetRowIdForCostos ? 'Usar en Fila' : 'Agregar'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {/* Insumos matches */}
+              {INSUMOS_PRECIOS.filter((i) => {
+                const matchesFiltro =
+                  filtroCostos === 'ALL' ||
+                  filtroCostos === i.tipo;
+                const matchesText =
+                  !searchCostos ||
+                  i.codigo.toLowerCase().includes(searchCostos.toLowerCase()) ||
+                  i.descripcion.toLowerCase().includes(searchCostos.toLowerCase()) ||
+                  i.grupo.toLowerCase().includes(searchCostos.toLowerCase());
+                return matchesFiltro && matchesText;
+              }).map((i) => (
+                <div
+                  key={`insumo-${i.codigo}`}
+                  className="py-2.5 px-3 rounded-xl hover:bg-emerald-50/50 transition-colors flex items-center justify-between gap-4 group"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                        {i.codigo}
+                      </span>
+                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+                        {i.tipo === 'MANO_DE_OBRA' ? 'MANO DE OBRA' : i.tipo}
+                      </span>
+                      <span className="text-xs font-bold text-slate-900">{i.descripcion}</span>
+                      {i.marca && (
+                        <span className="text-[10px] text-slate-400 italic">({i.marca})</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 shrink-0">
+                    <div className="text-right">
+                      <div className="text-[10px] text-slate-400">Unidad: {i.unidad}</div>
+                      <div className="text-sm font-black text-emerald-700 font-mono">
+                        S/ {i.precioConIgv.toFixed(2)}
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleSelectCostosItem({
+                          codigo: i.codigo,
+                          descripcion: i.descripcion,
+                          unidad: i.unidad,
+                          precioUnitario: i.precioConIgv,
+                        })
+                      }
+                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-1 shadow-xs transition-all group-hover:scale-105"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      {targetRowIdForCostos ? 'Usar en Fila' : 'Agregar'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 bg-slate-100 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+              <span>
+                💡 Puedes buscar por nombre de material, código o actividad y presionar <strong>Agregar</strong> para insertarlo automáticamente con su precio unitario oficial.
+              </span>
+              <button
+                type="button"
+                onClick={() => setModalCostosOpen(false)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   );
 }
