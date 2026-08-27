@@ -27,6 +27,16 @@ export interface InsumoPrecio {
   proveedor?: string;
   marca?: string;
   grupo: string;
+  pagina?: string;
+}
+
+export interface GrupoIndiceInsumo {
+  letra: string;
+  grupo: string;
+  pagina: string;
+  tipo: 'MATERIAL' | 'MANO_DE_OBRA' | 'EQUIPO';
+  cantidadInsumos?: number;
+  descripcion?: string;
 }
 
 export interface APUItem {
@@ -71,6 +81,86 @@ export const VALOR_M2_GRUPOS: ValorM2Grupo[] = [
   { item: '27', grupo: 'Instalaciones Eléctricas - Movimiento de Tierras', parcialSoles: 391.87, valorM2Soles: 1.96, valorM2Dolares: 0.53 },
   { item: '28', grupo: 'Tuberías y Accesorios Electr. PVC-SAP', parcialSoles: 3630.26, valorM2Soles: 18.15, valorM2Dolares: 4.93 },
   { item: '29', grupo: 'Tuberías y Accesorios Electr. PVC - SEL', parcialSoles: 8281.54, valorM2Soles: 41.41, valorM2Dolares: 11.24 },
+];
+
+export const INDICE_GRUPOS_INSUMOS: GrupoIndiceInsumo[] = [
+  // A
+  { letra: 'A', grupo: 'ABRAZADERA', pagina: '3.23', tipo: 'MATERIAL', descripcion: 'Abrazaderas tipo U, split y galvanizadas para tuberías y conductores' },
+  { letra: 'A', grupo: 'ACCESORIOS', pagina: '3.12', tipo: 'MATERIAL', descripcion: 'Accesorios para perfilería drywall, esquineros y uniones' },
+  { letra: 'A', grupo: 'ACCESORIOS', pagina: '3.29', tipo: 'MATERIAL', descripcion: 'Accesorios de fijación y pernos' },
+  { letra: 'A', grupo: 'ACCESORIOS DE GRIFERÍA', pagina: '3.19', tipo: 'MATERIAL', descripcion: 'Aireadores, tubos de abasto, canoplas y empaques' },
+  { letra: 'A', grupo: 'ACCESORIOS PARA CANALETA ELÉCTRICA', pagina: '3.23', tipo: 'MATERIAL', descripcion: 'Ángulos planos, tes, esquineros y tapas para canaletas' },
+  { letra: 'A', grupo: 'ACCESORIOS PARA ENCOFRADOS', pagina: '3.15', tipo: 'EQUIPO', descripcion: 'Espárragos, tuercas mariposa, alineadores y mordazas' },
+  { letra: 'A', grupo: 'ACCESORIOS SAP', pagina: '3.23', tipo: 'MATERIAL', descripcion: 'Codos, uniones, campanas y curvas PVC-SAP pesada' },
+  { letra: 'A', grupo: 'ACCESORIOS SEL', pagina: '3.23', tipo: 'MATERIAL', descripcion: 'Codos, uniones y cajas de paso PVC-SEL liviana' },
+  { letra: 'A', grupo: 'ACERO CORRUGADO F\'Y 4200 (G-60)', pagina: '3.19', tipo: 'MATERIAL', descripcion: 'Varillas de 6mm, 8mm, 3/8", 1/2", 5/8", 3/4", 1" ASTM A615' },
+  { letra: 'A', grupo: 'ADAPTADORES', pagina: '3.24', tipo: 'MATERIAL', descripcion: 'Adaptadores PVC roscados y mixtos' },
+  { letra: 'A', grupo: 'ADITIVO ACELERANTE', pagina: '3.17', tipo: 'MATERIAL', descripcion: 'Acelerantes de fragua para concreto y morteros' },
+  { letra: 'A', grupo: 'ADITIVO CURADOR', pagina: '3.17', tipo: 'MATERIAL', descripcion: 'Membranas de curado químico al agua y al solvente' },
+  { letra: 'A', grupo: 'ADITIVO DESMOLDANTE', pagina: '3.17', tipo: 'MATERIAL', descripcion: 'Desmoldantes ecológicos para encofrados metálicos y madera' },
+  { letra: 'A', grupo: 'ADITIVO ENDURECEDOR DE PISO', pagina: '3.17', tipo: 'MATERIAL', descripcion: 'Endurecedores de cuarzo y corindón para pisos industriales' },
+  { letra: 'A', grupo: 'ADITIVO EXPANSIVO', pagina: '3.17', tipo: 'MATERIAL', descripcion: 'Grout expansivo sin contracción para anclajes' },
+  { letra: 'A', grupo: 'ADITIVO IMPERMEABILIZANTE', pagina: '3.17', tipo: 'MATERIAL', descripcion: 'Hidrófugos de masa para concreto y tarrajeo' },
+  { letra: 'A', grupo: 'ADITIVO INHIBIDOR DE LA CORROSIÓN', pagina: '3.17', tipo: 'MATERIAL', descripcion: 'Inhibidores migratorios para estructuras expuestas' },
+  { letra: 'A', grupo: 'ADITIVO PEGAMENTO Y ADHESIVO', pagina: '3.17', tipo: 'MATERIAL', descripcion: 'Puentes de adherencia epóxicos y látex para concreto viejo a nuevo' },
+  { letra: 'A', grupo: 'ADITIVO PLASTIFICANTE', pagina: '3.17', tipo: 'MATERIAL', descripcion: 'Reductores de agua y plastificantes para bombeo de concreto' },
+  { letra: 'A', grupo: 'ADITIVO SELLADOR', pagina: '3.17', tipo: 'MATERIAL', descripcion: 'Selladores acrílicos y de poliuretano' },
+  { letra: 'A', grupo: 'ADITIVO SELLADOR DE JUNTAS', pagina: '3.17', tipo: 'MATERIAL', descripcion: 'Masillas elastoméricas para juntas de dilatación' },
+
+  // C
+  { letra: 'C', grupo: 'CALAMINAS DE ALUZINC', pagina: '3.8', tipo: 'MATERIAL', descripcion: 'Planchas onduladas y trapezoidales de aluzinc e=0.30mm a 0.50mm' },
+  { letra: 'C', grupo: 'CANALETAS', pagina: '3.26', tipo: 'MATERIAL', descripcion: 'Canaletas pluviales de PVC y metálicas para techos' },
+  { letra: 'C', grupo: 'CANDADOS', pagina: '3.9', tipo: 'MATERIAL', descripcion: 'Candados de latón macizo y acero cementado 30mm a 70mm' },
+  { letra: 'C', grupo: 'CANDADOS ARCO LARGO', pagina: '3.1', tipo: 'MATERIAL', descripcion: 'Candados de seguridad con arco largo endurecido' },
+  { letra: 'C', grupo: 'CASETONES', pagina: '3.26', tipo: 'MATERIAL', descripcion: 'Casetones de poliestireno expandido para losas aligeradas' },
+  { letra: 'C', grupo: 'CEMENTO', pagina: '3.1', tipo: 'MATERIAL', descripcion: 'Cemento Portland Tipo I, Tipo IP, Tipo V (bolsas de 42.5kg)' },
+  { letra: 'C', grupo: 'CEMENTO PUESTO EN OBRA', pagina: '3.19', tipo: 'MATERIAL', descripcion: 'Bolsas puestas en obra con flete incluido' },
+  { letra: 'C', grupo: 'CEMENTOS', pagina: '3.7', tipo: 'MATERIAL', descripcion: 'Variedad de cementos puzolánicos y antisulfato' },
+  { letra: 'C', grupo: 'CEMENTOS', pagina: '3.26', tipo: 'MATERIAL', descripcion: 'Cementos especiales para albañilería y morteros' },
+  { letra: 'C', grupo: 'CEMENTOS GRANEL', pagina: '3.1', tipo: 'MATERIAL', descripcion: 'Cemento a granel despachado en camión bombona' },
+  { letra: 'C', grupo: 'CERRADURA ANTIPÁNICO', pagina: '3.9', tipo: 'MATERIAL', descripcion: 'Barras antipánico de 1 y 2 puntos para salidas de emergencia' },
+  { letra: 'C', grupo: 'CERRADURA DE CERROJO ACERO INOXIDABLE', pagina: '3.9', tipo: 'MATERIAL', descripcion: 'Cerrojos de seguridad simple y doble vuelta en inox 304' },
+  { letra: 'C', grupo: 'CERRADURA DE MANIJA ACERO INOXIDABLE', pagina: '3.9', tipo: 'MATERIAL', descripcion: 'Manijas tubulares y rosetas satinadas para oficinas y dormitorios' },
+  { letra: 'C', grupo: 'CERRADURA P/PUERTA CORREDIZA', pagina: '3.9', tipo: 'MATERIAL', descripcion: 'Cerraduras tipo pico de loro para mamparas y puertas corredizas' },
+  { letra: 'C', grupo: 'CERRADURA P/PUERTA ELÉCTRICA', pagina: '3.9', tipo: 'MATERIAL', descripcion: 'Cerraduras electromagnéticas y cantoneras 12V / 220V' },
+  { letra: 'C', grupo: 'CERRADURA PARA AUTOS', pagina: '3.9', tipo: 'MATERIAL', descripcion: 'Sistemas mecánicos de traba' },
+  { letra: 'C', grupo: 'CERRADURAS DE PERILLA P/PUERTA PRINCIPAL TRAVEX', pagina: '3.9', tipo: 'MATERIAL', descripcion: 'Cerraduras esféricas y de tulipán con llave exterior y seguro' },
+  { letra: 'C', grupo: 'CERRADURAS TRANCA TRAVEX P/EXTERIOR DE ALTA SEGURIDAD', pagina: '3.9', tipo: 'MATERIAL', descripcion: 'Trancas de 4 barras de acero con cilindro blindado' },
+  { letra: 'C', grupo: 'CERRADURAS TRAVEX P/BAÑO', pagina: '3.9', tipo: 'MATERIAL', descripcion: 'Perillas sin llave con ranura de emergencia exterior' },
+  { letra: 'C', grupo: 'CERRADURAS TRAVEX P/EXTERIOR DE ALTA SEGURIDAD', pagina: '3.9', tipo: 'MATERIAL', descripcion: 'Cerraduras de sobreponer de 3 y 4 golpes' },
+
+  // E
+  { letra: 'E', grupo: 'ESTRIBOS', pagina: '3.27', tipo: 'MATERIAL', descripcion: 'Estribos armados de alambrón y 3/8" para vigas y columnas' },
+  { letra: 'E', grupo: 'EXTINTOR CONTRA INCENDIO', pagina: '3.5', tipo: 'EQUIPO', descripcion: 'Extintores PQS 6kg, 9kg, 12kg y CO2 5lb certificados UL' },
+
+  // F
+  { letra: 'F', grupo: 'FIERROS', pagina: '3.7', tipo: 'MATERIAL', descripcion: 'Perfiles angulares, tees, pletinas y canales U de acero A36' },
+  { letra: 'F', grupo: 'FIERROS DE CONSTRUCCIÓN', pagina: '3.1', tipo: 'MATERIAL', descripcion: 'Fierro corrugado Aceros Arequipa / Siderperu ASTM A615' },
+  { letra: 'F', grupo: 'FLUX', pagina: '3.31', tipo: 'MATERIAL', descripcion: 'Pastas y fundentes para soldadura de cobre' },
+  { letra: 'F', grupo: 'FOCO LED', pagina: '3.19', tipo: 'MATERIAL', descripcion: 'Lámparas LED E27 9W, 12W, 15W luz fría y cálida' },
+  { letra: 'F', grupo: 'FOCO LED', pagina: '3.2', tipo: 'MATERIAL', descripcion: 'Paneles y reflectores LED para obras y oficinas' },
+  { letra: 'F', grupo: 'FOTOGRAMETRÍA', pagina: '3.15', tipo: 'EQUIPO', descripcion: 'Drones con cámara RTK y sensores multiespectrales' },
+  { letra: 'F', grupo: 'FRISOS PREFABRICADOS', pagina: '3.8', tipo: 'MATERIAL', descripcion: 'Molduras y frisos de concreto y yeso decorativo' },
+
+  // G
+  { letra: 'G', grupo: 'GABINETE DE MANGUERA CONTRA INCENDIO', pagina: '3.5', tipo: 'EQUIPO', descripcion: 'Gabinetes metálicos adosables/empotrados con válvula angular 1-1/2"' },
+  { letra: 'G', grupo: 'GANCHO', pagina: '3.29', tipo: 'MATERIAL', descripcion: 'Ganchos tipo J galvanizados con arandela para fijación de calaminas' },
+  { letra: 'G', grupo: 'GASFITERÍA', pagina: '3.21', tipo: 'MATERIAL', descripcion: 'Accesorios, niples, teflón, pegamentos y selladores de rosca' },
+  { letra: 'G', grupo: 'GASFITERÍA Y GRIFERÍA', pagina: '3.14', tipo: 'MATERIAL', descripcion: 'Línea de conducción y griferías monocomando de bronce' },
+  { letra: 'G', grupo: 'GENERADOR DE AIRE CALIENTE', pagina: '3.14', tipo: 'EQUIPO', descripcion: 'Calefactores industriales para secado rápido de tarrajeos' },
+  { letra: 'G', grupo: 'GEODESIA', pagina: '3.15', tipo: 'EQUIPO', descripcion: 'Receptores GPS geodésicos diferenciales GNSS L1/L2' },
+  { letra: 'G', grupo: 'GRAPAS', pagina: '3.7', tipo: 'MATERIAL', descripcion: 'Grapas metálicas para cables y alambres' },
+  { letra: 'G', grupo: 'GRIFERÍA DE BAÑO - MEZCLADORAS', pagina: '3.19', tipo: 'MATERIAL', descripcion: 'Mezcladoras de lavatorio 4" y 8" al mueble y a la pared' },
+  { letra: 'G', grupo: 'GRIFERÍA DE BAÑO LAVATORIO - AGUA FRÍA', pagina: '3.18', tipo: 'MATERIAL', descripcion: 'Llaves temporizadas de cierre automático y llaves de palanca' },
+
+  // M (Mano de Obra)
+  { letra: 'M', grupo: 'MANO DE OBRA CONSTRUCCIÓN CIVIL (CAPECO)', pagina: '3.30', tipo: 'MANO_DE_OBRA', descripcion: 'Costos vigentes Hora-Hombre: Operario, Oficial, Peón, Capataz con leyes sociales' },
+
+  // P (Pinturas)
+  { letra: 'P', grupo: 'PINTURAS LÁTEX, ESMALTES E IMPRIMANTES', pagina: '3.28', tipo: 'MATERIAL', descripcion: 'Látex satinado, lavable, anticorrosivo, barnices y solventes' },
+
+  // T (Tuberías)
+  { letra: 'T', grupo: 'TUBERÍAS Y ACCESORIOS PVC (AGUA, DESAGÜE Y ELECTRICIDAD)', pagina: '3.21', tipo: 'MATERIAL', descripcion: 'PVC-SAP agua fría, CPVC agua caliente, PVC-SAL desagüe y PVC-SEL' },
 ];
 
 export const PARTIDAS_PRESUPUESTO: PartidaPresupuesto[] = [
@@ -144,49 +234,65 @@ export const PARTIDAS_PRESUPUESTO: PartidaPresupuesto[] = [
 ];
 
 export const INSUMOS_PRECIOS: InsumoPrecio[] = [
-  // Materiales Básicos
-  { codigo: 'MAT-001', tipo: 'MATERIAL', descripcion: 'Cemento Portland Tipo I (bolsa 42.5 kg)', unidad: 'bolsa', precioSinIgv: 24.58, precioConIgv: 29.00, proveedor: 'UNACEM / Sol', marca: 'Cemento Sol', grupo: 'Cementos y Conglomerantes' },
-  { codigo: 'MAT-002', tipo: 'MATERIAL', descripcion: 'Arena gruesa para concreto', unidad: 'm3', precioSinIgv: 55.08, precioConIgv: 65.00, proveedor: 'Cantera Jicamarca', grupo: 'Agregados' },
-  { codigo: 'MAT-003', tipo: 'MATERIAL', descripcion: 'Piedra chancada 1/2"', unidad: 'm3', precioSinIgv: 63.56, precioConIgv: 75.00, proveedor: 'Cantera Huachipa', grupo: 'Agregados' },
-  { codigo: 'MAT-004', tipo: 'MATERIAL', descripcion: 'Arena fina para tarrajeo', unidad: 'm3', precioSinIgv: 59.32, precioConIgv: 70.00, proveedor: 'Cantera Jicamarca', grupo: 'Agregados' },
-  { codigo: 'MAT-005', tipo: 'MATERIAL', descripcion: 'Fierro corrugado 1/2" Grado 60 ASTM A615 (varilla 9m)', unidad: 'varilla', precioSinIgv: 38.98, precioConIgv: 46.00, proveedor: 'Aceros Arequipa', marca: 'Aceros Arequipa', grupo: 'Aceros y Fierros' },
-  { codigo: 'MAT-006', tipo: 'MATERIAL', descripcion: 'Fierro corrugado 3/8" Grado 60 (varilla 9m)', unidad: 'varilla', precioSinIgv: 22.03, precioConIgv: 26.00, proveedor: 'Aceros Arequipa', marca: 'Aceros Arequipa', grupo: 'Aceros y Fierros' },
-  { codigo: 'MAT-007', tipo: 'MATERIAL', descripcion: 'Alambre negro recocido N° 16 para amarre', unidad: 'kg', precioSinIgv: 5.93, precioConIgv: 7.00, proveedor: 'Prodac', grupo: 'Aceros y Alambres' },
-  { codigo: 'MAT-008', tipo: 'MATERIAL', descripcion: 'Ladrillo King Kong 18 Huecos (24x13x9 cm)', unidad: 'millar', precioSinIgv: 805.08, precioConIgv: 950.00, proveedor: 'Ladrillera Lark', marca: 'Lark', grupo: 'Ladrillos y Bloques' },
-  { codigo: 'MAT-009', tipo: 'MATERIAL', descripcion: 'Ladrillo de Techo Hueco 15 (30x30x15 cm)', unidad: 'millar', precioSinIgv: 2118.64, precioConIgv: 2500.00, proveedor: 'Ladrillera Rex', marca: 'Rex', grupo: 'Ladrillos y Bloques' },
+  // A - Abrazaderas y Accesorios
+  { codigo: 'INS-001', tipo: 'MATERIAL', descripcion: 'Abrazadera metálica tipo U 1/2" con tirafón', unidad: 'und', precioSinIgv: 2.20, precioConIgv: 2.60, proveedor: 'Ferreterías Lima', grupo: 'ABRAZADERA', pagina: '3.23' },
+  { codigo: 'INS-002', tipo: 'MATERIAL', descripcion: 'Accesorios para encofrado: Espárrago de 5/8" con 2 tuercas mariposa', unidad: 'jgo', precioSinIgv: 18.50, precioConIgv: 21.83, proveedor: 'Uni-Span / Alsina', grupo: 'ACCESORIOS PARA ENCOFRADOS', pagina: '3.15' },
+  { codigo: 'INS-003', tipo: 'MATERIAL', descripcion: 'Accesorios de grifería: Tubo de abasto trenzado inox 1/2" x 1/2" x 40cm', unidad: 'und', precioSinIgv: 14.50, precioConIgv: 17.11, proveedor: 'Vainsa / Italgrif', grupo: 'ACCESORIOS DE GRIFERÍA', pagina: '3.19' },
+  { codigo: 'INS-004', tipo: 'MATERIAL', descripcion: 'Acero corrugado ASTM A615 Grado 60 de 1/2" (varilla 9m)', unidad: 'varilla', precioSinIgv: 38.98, precioConIgv: 46.00, proveedor: 'Aceros Arequipa', marca: 'Aceros Arequipa', grupo: 'ACERO CORRUGADO F\'Y 4200 (G-60)', pagina: '3.19' },
+  { codigo: 'INS-005', tipo: 'MATERIAL', descripcion: 'Acero corrugado ASTM A615 Grado 60 de 3/8" (varilla 9m)', unidad: 'varilla', precioSinIgv: 22.03, precioConIgv: 26.00, proveedor: 'Aceros Arequipa', marca: 'Aceros Arequipa', grupo: 'ACERO CORRUGADO F\'Y 4200 (G-60)', pagina: '3.19' },
+  { codigo: 'INS-006', tipo: 'MATERIAL', descripcion: 'Acero corrugado ASTM A615 Grado 60 de 5/8" (varilla 9m)', unidad: 'varilla', precioSinIgv: 60.17, precioConIgv: 71.00, proveedor: 'Aceros Arequipa', marca: 'Aceros Arequipa', grupo: 'ACERO CORRUGADO F\'Y 4200 (G-60)', pagina: '3.19' },
+
+  // A - Aditivos
+  { codigo: 'INS-007', tipo: 'MATERIAL', descripcion: 'Aditivo acelerante de fragua Sika 3 (Galón)', unidad: 'galon', precioSinIgv: 38.14, precioConIgv: 45.00, proveedor: 'Sika Perú', marca: 'Sika 3', grupo: 'ADITIVO ACELERANTE', pagina: '3.17' },
+  { codigo: 'INS-008', tipo: 'MATERIAL', descripcion: 'Aditivo curador de concreto Antisol Blanco (Balde 5 gal)', unidad: 'balde', precioSinIgv: 110.17, precioConIgv: 130.00, proveedor: 'Sika Perú', marca: 'Antisol', grupo: 'ADITIVO CURADOR', pagina: '3.17' },
+  { codigo: 'INS-009', tipo: 'MATERIAL', descripcion: 'Aditivo desmoldante para encofrados SikaForm Madera (Balde 5 gal)', unidad: 'balde', precioSinIgv: 127.12, precioConIgv: 150.00, proveedor: 'Sika Perú', marca: 'SikaForm', grupo: 'ADITIVO DESMOLDANTE', pagina: '3.17' },
+  { codigo: 'INS-010', tipo: 'MATERIAL', descripcion: 'Aditivo puente de adherencia Sikadur 32 Gel (Jgo 1 kg)', unidad: 'jgo', precioSinIgv: 63.56, precioConIgv: 75.00, proveedor: 'Sika Perú', marca: 'Sikadur 32', grupo: 'ADITIVO PEGAMENTO Y ADHESIVO', pagina: '3.17' },
+  { codigo: 'INS-011', tipo: 'MATERIAL', descripcion: 'Aditivo impermeabilizante de masa Sika 1 (Galón)', unidad: 'galon', precioSinIgv: 29.66, precioConIgv: 35.00, proveedor: 'Sika Perú', marca: 'Sika 1', grupo: 'ADITIVO IMPERMEABILIZANTE', pagina: '3.17' },
+  { codigo: 'INS-012', tipo: 'MATERIAL', descripcion: 'Aditivo sellador de juntas Sikaflex 11FC Poliuretano (Cartucho 300ml)', unidad: 'und', precioSinIgv: 32.20, precioConIgv: 38.00, proveedor: 'Sika Perú', marca: 'Sikaflex', grupo: 'ADITIVO SELLADOR DE JUNTAS', pagina: '3.17' },
+
+  // C - Cementos y Calaminas
+  { codigo: 'INS-013', tipo: 'MATERIAL', descripcion: 'Calamina de Aluzinc TR4 0.40mm x 1.05m x 3.60m', unidad: 'plancha', precioSinIgv: 58.47, precioConIgv: 69.00, proveedor: 'Tupemesa / Precor', marca: 'Aluzinc TR4', grupo: 'CALAMINAS DE ALUZINC', pagina: '3.8' },
+  { codigo: 'INS-014', tipo: 'MATERIAL', descripcion: 'Cemento Portland Tipo I (bolsa 42.5 kg)', unidad: 'bolsa', precioSinIgv: 24.58, precioConIgv: 29.00, proveedor: 'UNACEM / Sol', marca: 'Cemento Sol', grupo: 'CEMENTO', pagina: '3.1' },
+  { codigo: 'INS-015', tipo: 'MATERIAL', descripcion: 'Cemento Portland Tipo V Antisulfato (bolsa 42.5 kg)', unidad: 'bolsa', precioSinIgv: 28.81, precioConIgv: 34.00, proveedor: 'UNACEM / Andino', marca: 'Andino Tipo V', grupo: 'CEMENTO', pagina: '3.1' },
+  { codigo: 'INS-016', tipo: 'MATERIAL', descripcion: 'Cemento a Granel Tipo I (puesto en obra)', unidad: 'ton', precioSinIgv: 480.00, precioConIgv: 566.40, proveedor: 'UNACEM', grupo: 'CEMENTOS GRANEL', pagina: '3.1' },
+
+  // C - Cerraduras Travex y Candados
+  { codigo: 'INS-017', tipo: 'MATERIAL', descripcion: 'Candado de latón arco largo 50mm Travex', unidad: 'und', precioSinIgv: 33.90, precioConIgv: 40.00, proveedor: 'Travex Perú', marca: 'Travex', grupo: 'CANDADOS ARCO LARGO', pagina: '3.1' },
+  { codigo: 'INS-018', tipo: 'MATERIAL', descripcion: 'Barra antipánico touch bar modular 1 punto con manija exterior', unidad: 'jgo', precioSinIgv: 423.73, precioConIgv: 500.00, proveedor: 'Travex / Yale', marca: 'Travex', grupo: 'CERRADURA ANTIPÁNICO', pagina: '3.9' },
+  { codigo: 'INS-019', tipo: 'MATERIAL', descripcion: 'Cerradura de manija acero inoxidable satinado tubular mod. Milán', unidad: 'jgo', precioSinIgv: 72.03, precioConIgv: 85.00, proveedor: 'Travex / Cantol', marca: 'Travex', grupo: 'CERRADURA DE MANIJA ACERO INOXIDABLE', pagina: '3.9' },
+  { codigo: 'INS-020', tipo: 'MATERIAL', descripcion: 'Cerradura de perilla para puerta principal acero inoxidable Travex', unidad: 'und', precioSinIgv: 46.61, precioConIgv: 55.00, proveedor: 'Travex', marca: 'Travex', grupo: 'CERRADURAS DE PERILLA P/PUERTA PRINCIPAL TRAVEX', pagina: '3.9' },
+  { codigo: 'INS-021', tipo: 'MATERIAL', descripcion: 'Cerradura tranca de 4 barras de acero blindada Travex p/exterior', unidad: 'und', precioSinIgv: 161.02, precioConIgv: 190.00, proveedor: 'Travex', marca: 'Travex Tranca', grupo: 'CERRADURAS TRANCA TRAVEX P/EXTERIOR DE ALTA SEGURIDAD', pagina: '3.9' },
+  { codigo: 'INS-022', tipo: 'MATERIAL', descripcion: 'Cerradura de sobreponer clásica 3 golpes Travex 2000', unidad: 'und', precioSinIgv: 67.80, precioConIgv: 80.00, proveedor: 'Travex', marca: 'Travex 2000', grupo: 'CERRADURAS TRAVEX P/EXTERIOR DE ALTA SEGURIDAD', pagina: '3.9' },
+
+  // E & F - Extintores, Fierros y Focos LED
+  { codigo: 'INS-023', tipo: 'EQUIPO', descripcion: 'Extintor de polvo químico seco PQS 6 kg con soporte y certificación', unidad: 'und', precioSinIgv: 95.00, precioConIgv: 112.10, proveedor: 'Seguridad Industrial Lima', grupo: 'EXTINTOR CONTRA INCENDIO', pagina: '3.5' },
+  { codigo: 'INS-024', tipo: 'MATERIAL', descripcion: 'Foco LED Bulbo 12W E27 Luz Fría 6500K Philips', unidad: 'und', precioSinIgv: 8.47, precioConIgv: 10.00, proveedor: 'Philips / Signify', marca: 'Philips', grupo: 'FOCO LED', pagina: '3.19' },
+  { codigo: 'INS-025', tipo: 'MATERIAL', descripcion: 'Panel LED adosable / empotrable 60x60cm 40W blanco neutro', unidad: 'und', precioSinIgv: 63.56, precioConIgv: 75.00, proveedor: 'Opalux / Philips', grupo: 'FOCO LED', pagina: '3.2' },
+
+  // G - Gabinetes y Griferías
+  { codigo: 'INS-026', tipo: 'EQUIPO', descripcion: 'Gabinete contra incendio adosable con manguera 30m y pitón chorro-niebla', unidad: 'jgo', precioSinIgv: 490.00, precioConIgv: 578.20, proveedor: 'Fire Perú', grupo: 'GABINETE DE MANGUERA CONTRA INCENDIO', pagina: '3.5' },
+  { codigo: 'INS-027', tipo: 'MATERIAL', descripcion: 'Mezcladora de lavatorio 4" al mueble pico alto cromo Vainsa', unidad: 'und', precioSinIgv: 186.44, precioConIgv: 220.00, proveedor: 'Vainsa', marca: 'Vainsa', grupo: 'GRIFERÍA DE BAÑO - MEZCLADORAS', pagina: '3.19' },
+  { codigo: 'INS-028', tipo: 'MATERIAL', descripcion: 'Llave de lavatorio agua fría temporizada institucional de push', unidad: 'und', precioSinIgv: 118.64, precioConIgv: 140.00, proveedor: 'Italgrif / Trebol', marca: 'Italgrif', grupo: 'GRIFERÍA DE BAÑO LAVATORIO - AGUA FRÍA', pagina: '3.18' },
+
+  // M - Mano de Obra CAPECO
+  { codigo: 'MO-001', tipo: 'MANO_DE_OBRA', descripcion: 'Operario de Construcción Civil / Acabados', unidad: 'hh', precioSinIgv: 26.45, precioConIgv: 26.45, grupo: 'MANO DE OBRA CONSTRUCCIÓN CIVIL (CAPECO)', pagina: '3.30' },
+  { codigo: 'MO-002', tipo: 'MANO_DE_OBRA', descripcion: 'Oficial de Construcción Civil', unidad: 'hh', precioSinIgv: 20.80, precioConIgv: 20.80, grupo: 'MANO DE OBRA CONSTRUCCIÓN CIVIL (CAPECO)', pagina: '3.30' },
+  { codigo: 'MO-003', tipo: 'MANO_DE_OBRA', descripcion: 'Peón de Construcción Civil', unidad: 'hh', precioSinIgv: 18.70, precioConIgv: 18.70, grupo: 'MANO DE OBRA CONSTRUCCIÓN CIVIL (CAPECO)', pagina: '3.30' },
+  { codigo: 'MO-004', tipo: 'MANO_DE_OBRA', descripcion: 'Capataz de Cuadrilla', unidad: 'hh', precioSinIgv: 31.50, precioConIgv: 31.50, grupo: 'MANO DE OBRA CONSTRUCCIÓN CIVIL (CAPECO)', pagina: '3.30' },
+  { codigo: 'MO-005', tipo: 'MANO_DE_OBRA', descripcion: 'Pintor Especialista en Acabados y Fachadas', unidad: 'hh', precioSinIgv: 27.50, precioConIgv: 27.50, grupo: 'MANO DE OBRA CONSTRUCCIÓN CIVIL (CAPECO)', pagina: '3.30' },
+  { codigo: 'MO-006', tipo: 'MANO_DE_OBRA', descripcion: 'Electricista Calificado', unidad: 'hh', precioSinIgv: 28.00, precioConIgv: 28.00, grupo: 'MANO DE OBRA CONSTRUCCIÓN CIVIL (CAPECO)', pagina: '3.30' },
 
   // Pinturas y Acabados
-  { codigo: 'MAT-010', tipo: 'MATERIAL', descripcion: 'Pintura Látex Satinado Vencedor Supermate (Balde 5 gal)', unidad: 'balde', precioSinIgv: 186.44, precioConIgv: 220.00, proveedor: 'Qroma / Maestro', marca: 'Vencedor', grupo: 'Pinturas y Selladores' },
-  { codigo: 'MAT-011', tipo: 'MATERIAL', descripcion: 'Pintura Látex Lavable CPP Pato (Balde 5 gal)', unidad: 'balde', precioSinIgv: 152.54, precioConIgv: 180.00, proveedor: 'CPP Qroma', marca: 'CPP', grupo: 'Pinturas y Selladores' },
-  { codigo: 'MAT-012', tipo: 'MATERIAL', descripcion: 'Imprimante blanco para muros (bolsa 25 kg)', unidad: 'bolsa', precioSinIgv: 29.66, precioConIgv: 35.00, proveedor: 'Tekno', marca: 'Tekno', grupo: 'Pinturas y Selladores' },
-  { codigo: 'MAT-013', tipo: 'MATERIAL', descripcion: 'Esmalte Sintético Anticorrosivo Tekno Gloss (Galón)', unidad: 'galon', precioSinIgv: 55.08, precioConIgv: 65.00, proveedor: 'Tekno', marca: 'Tekno', grupo: 'Pinturas y Selladores' },
-  { codigo: 'MAT-014', tipo: 'MATERIAL', descripcion: 'Thinner acrílico estándar', unidad: 'galon', precioSinIgv: 21.19, precioConIgv: 25.00, proveedor: 'Solventes Perú', grupo: 'Pinturas y Selladores' },
-  { codigo: 'MAT-015', tipo: 'MATERIAL', descripcion: 'Lija de agua / fierro #80, #120, #180', unidad: 'pliego', precioSinIgv: 2.12, precioConIgv: 2.50, proveedor: 'Norton', grupo: 'Abrasivos' },
-  { codigo: 'MAT-016', tipo: 'MATERIAL', descripcion: 'Pegamento Blanco Flexible para Porcelanato (Bolsa 25 kg)', unidad: 'bolsa', precioSinIgv: 38.14, precioConIgv: 45.00, proveedor: 'Chema / Weber', marca: 'Chema Pegamix', grupo: 'Adhesivos y Fragüas' },
-  { codigo: 'MAT-017', tipo: 'MATERIAL', descripcion: 'Fragüa antibacterial con polímeros (bolsa 1 kg)', unidad: 'kg', precioSinIgv: 5.93, precioConIgv: 7.00, proveedor: 'Celima', marca: 'Celima', grupo: 'Adhesivos y Fragüas' },
+  { codigo: 'INS-029', tipo: 'MATERIAL', descripcion: 'Pintura Látex Satinado Vencedor Supermate (Balde 5 gal)', unidad: 'balde', precioSinIgv: 186.44, precioConIgv: 220.00, proveedor: 'Qroma', marca: 'Vencedor', grupo: 'PINTURAS LÁTEX, ESMALTES E IMPRIMANTES', pagina: '3.28' },
+  { codigo: 'INS-030', tipo: 'MATERIAL', descripcion: 'Pintura Látex Lavable CPP Pato (Balde 5 gal)', unidad: 'balde', precioSinIgv: 152.54, precioConIgv: 180.00, proveedor: 'CPP Qroma', marca: 'CPP', grupo: 'PINTURAS LÁTEX, ESMALTES E IMPRIMANTES', pagina: '3.28' },
+  { codigo: 'INS-031', tipo: 'MATERIAL', descripcion: 'Esmalte Sintético Anticorrosivo Tekno Gloss (Galón)', unidad: 'galon', precioSinIgv: 55.08, precioConIgv: 65.00, proveedor: 'Tekno', marca: 'Tekno', grupo: 'PINTURAS LÁTEX, ESMALTES E IMPRIMANTES', pagina: '3.28' },
+  { codigo: 'INS-032', tipo: 'MATERIAL', descripcion: 'Imprimante blanco al agua para muros (Bolsa 25 kg)', unidad: 'bolsa', precioSinIgv: 29.66, precioConIgv: 35.00, proveedor: 'Tekno', marca: 'Tekno', grupo: 'PINTURAS LÁTEX, ESMALTES E IMPRIMANTES', pagina: '3.28' },
 
-  // Sanitarias & Eléctricas
-  { codigo: 'MAT-018', tipo: 'MATERIAL', descripcion: 'Tubo PVC-SAP 1/2" Clase 10 para agua fría (tubo 5m)', unidad: 'tubo', precioSinIgv: 14.41, precioConIgv: 17.00, proveedor: 'Pavco Wavin', marca: 'Pavco', grupo: 'Tuberías y Conexiones' },
-  { codigo: 'MAT-019', tipo: 'MATERIAL', descripcion: 'Tubo PVC-CPVC 1/2" para agua caliente (tubo 5m)', unidad: 'tubo', precioSinIgv: 27.12, precioConIgv: 32.00, proveedor: 'Pavco Wavin', marca: 'Pavco', grupo: 'Tuberías y Conexiones' },
-  { codigo: 'MAT-020', tipo: 'MATERIAL', descripcion: 'Tubo PVC-SAL 2" para desagüe (tubo 3m)', unidad: 'tubo', precioSinIgv: 18.64, precioConIgv: 22.00, proveedor: 'Tuboplast', marca: 'Tuboplast', grupo: 'Tuberías y Conexiones' },
-  { codigo: 'MAT-021', tipo: 'MATERIAL', descripcion: 'Cable eléctrico libre de halógeno NH-80 2.5 mm2 (rollo 100m)', unidad: 'rollo', precioSinIgv: 194.92, precioConIgv: 230.00, proveedor: 'Indeco / Centelsa', marca: 'Indeco', grupo: 'Conductores Eléctricos' },
-  { codigo: 'MAT-022', tipo: 'MATERIAL', descripcion: 'Interruptor termomagnético 2x20A Bticino riel DIN', unidad: 'und', precioSinIgv: 35.59, precioConIgv: 42.00, proveedor: 'Bticino', marca: 'Bticino', grupo: 'Aparatos Eléctricos' },
-
-  // Mano de Obra (CAPECO / Régimen Construcción Civil Perú)
-  { codigo: 'MO-001', tipo: 'MANO_DE_OBRA', descripcion: 'Operario de Construcción Civil / Acabados', unidad: 'hh', precioSinIgv: 26.45, precioConIgv: 26.45, grupo: 'Mano de Obra Calificada' },
-  { codigo: 'MO-002', tipo: 'MANO_DE_OBRA', descripcion: 'Oficial de Construcción Civil', unidad: 'hh', precioSinIgv: 20.80, precioConIgv: 20.80, grupo: 'Mano de Obra Semicalificada' },
-  { codigo: 'MO-003', tipo: 'MANO_DE_OBRA', descripcion: 'Peón de Construcción Civil', unidad: 'hh', precioSinIgv: 18.70, precioConIgv: 18.70, grupo: 'Mano de Obra No Calificada' },
-  { codigo: 'MO-004', tipo: 'MANO_DE_OBRA', descripcion: 'Capataz de Cuadrilla', unidad: 'hh', precioSinIgv: 31.50, precioConIgv: 31.50, grupo: 'Supervisión de Cuadrilla' },
-  { codigo: 'MO-005', tipo: 'MANO_DE_OBRA', descripcion: 'Pintor Especialista en Acabados y Fachadas', unidad: 'hh', precioSinIgv: 27.50, precioConIgv: 27.50, grupo: 'Mano de Obra Calificada' },
-  { codigo: 'MO-006', tipo: 'MANO_DE_OBRA', descripcion: 'Electricista Calificado', unidad: 'hh', precioSinIgv: 28.00, precioConIgv: 28.00, grupo: 'Mano de Obra Calificada' },
-
-  // Equipos y Maquinarias
-  { codigo: 'EQ-001', tipo: 'EQUIPO', descripcion: 'Mezcladora de concreto tipo trompo 9-11 p3 con motor a gasolina 8HP', unidad: 'hm', precioSinIgv: 22.00, precioConIgv: 25.96, grupo: 'Equipos Menores' },
-  { codigo: 'EQ-002', tipo: 'EQUIPO', descripcion: 'Vibrador de concreto 4HP cabezal 1.5"', unidad: 'hm', precioSinIgv: 14.50, precioConIgv: 17.11, grupo: 'Equipos Menores' },
-  { codigo: 'EQ-003', tipo: 'EQUIPO', descripcion: 'Andamio metálico tubular normado (cuerpo con plataforma y baranda)', unidad: 'dia', precioSinIgv: 18.00, precioConIgv: 21.24, grupo: 'Andamiaje y Seguridad' },
-  { codigo: 'EQ-004', tipo: 'EQUIPO', descripcion: 'Rotomartillo demoledor 11 kg SDS-Max', unidad: 'dia', precioSinIgv: 45.00, precioConIgv: 53.10, grupo: 'Herramientas Eléctricas' },
-  { codigo: 'EQ-005', tipo: 'EQUIPO', descripcion: 'Compresora de pintura neumática airless 2.5 HP', unidad: 'dia', precioSinIgv: 65.00, precioConIgv: 76.70, grupo: 'Equipos de Pintura' },
-  { codigo: 'EQ-006', tipo: 'EQUIPO', descripcion: 'Herramientas manuales (3% de Mano de Obra)', unidad: '%MO', precioSinIgv: 3.00, precioConIgv: 3.00, grupo: 'Herramientas Manuales' },
+  // Tuberías
+  { codigo: 'INS-033', tipo: 'MATERIAL', descripcion: 'Tubo PVC-SAP 1/2" Clase 10 para agua fría (tubo 5m)', unidad: 'tubo', precioSinIgv: 14.41, precioConIgv: 17.00, proveedor: 'Pavco Wavin', marca: 'Pavco', grupo: 'TUBERÍAS Y ACCESORIOS PVC (AGUA, DESAGÜE Y ELECTRICIDAD)', pagina: '3.21' },
+  { codigo: 'INS-034', tipo: 'MATERIAL', descripcion: 'Tubo PVC-CPVC 1/2" para agua caliente (tubo 5m)', unidad: 'tubo', precioSinIgv: 27.12, precioConIgv: 32.00, proveedor: 'Pavco Wavin', marca: 'Pavco', grupo: 'TUBERÍAS Y ACCESORIOS PVC (AGUA, DESAGÜE Y ELECTRICIDAD)', pagina: '3.21' },
+  { codigo: 'INS-035', tipo: 'MATERIAL', descripcion: 'Tubo PVC-SAL 2" para desagüe liviano (tubo 3m)', unidad: 'tubo', precioSinIgv: 18.64, precioConIgv: 22.00, proveedor: 'Tuboplast', marca: 'Tuboplast', grupo: 'TUBERÍAS Y ACCESORIOS PVC (AGUA, DESAGÜE Y ELECTRICIDAD)', pagina: '3.21' },
+  { codigo: 'INS-036', tipo: 'MATERIAL', descripcion: 'Tubo PVC-SEL 3/4" liviano para instalaciones eléctricas (tubo 3m)', unidad: 'tubo', precioSinIgv: 6.78, precioConIgv: 8.00, proveedor: 'Pavco / Plastisur', grupo: 'TUBERÍAS Y ACCESORIOS PVC (AGUA, DESAGÜE Y ELECTRICIDAD)', pagina: '3.21' },
 ];
 
 export const APU_CATALOGO: APUItem[] = [
