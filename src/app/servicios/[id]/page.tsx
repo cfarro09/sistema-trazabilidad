@@ -145,6 +145,97 @@ export default function ServicioDetallePage({
     }
   };
 
+  const [uploadingField, setUploadingField] = useState<string | null>(null);
+
+  const handleRealFileUpload = async (field: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingField(field);
+    try {
+      const uploadData = new FormData();
+      uploadData.append('file', file);
+      uploadData.append('folder', 'servicios');
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: uploadData,
+      });
+      const result = await res.json();
+      if (result.success) {
+        const patch = { [field]: result.url };
+        setFormData((prev) => ({ ...prev, ...patch }));
+        await handleSave(undefined, patch);
+      } else {
+        alert('Error al subir archivo: ' + (result.error || 'Error'));
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert('Error al subir archivo');
+    } finally {
+      setUploadingField(null);
+      e.target.value = '';
+    }
+  };
+
+  const renderUploadBox = (
+    field: keyof typeof formData,
+    title: string,
+    subtitle: string,
+    buttonText: string,
+    colorClass: string = 'bg-blue-600 hover:bg-blue-500'
+  ) => {
+    const isUploaded = Boolean(formData[field]);
+    const isCurrentUploading = uploadingField === field;
+
+    return (
+      <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <span className="text-xs font-bold text-slate-800 block">{title}</span>
+          <span className="text-[11px] text-slate-500">{subtitle}</span>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {isUploaded && (
+            <a
+              href={formData[field]}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-2 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 flex items-center gap-1.5 transition-colors shadow-2xs"
+            >
+              <FileText className="w-3.5 h-3.5 text-blue-600" />
+              Ver Archivo
+            </a>
+          )}
+          <label
+            className={`flex items-center gap-2 px-3.5 py-2 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer transition-all ${colorClass} ${
+              isCurrentUploading ? 'opacity-70 cursor-wait' : ''
+            }`}
+          >
+            {isCurrentUploading ? (
+              <span className="animate-spin text-sm">⏳</span>
+            ) : (
+              <Upload className="w-4 h-4" />
+            )}
+            <span>
+              {isCurrentUploading
+                ? 'Subiendo...'
+                : isUploaded
+                ? 'Reemplazar Archivo'
+                : buttonText}
+            </span>
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
+              onChange={(e) => handleRealFileUpload(field, e)}
+              className="hidden"
+              disabled={isCurrentUploading}
+            />
+          </label>
+        </div>
+      </div>
+    );
+  };
+
   const handleSimulateUpload = async (field: string, defaultName: string) => {
     const dummyUrl = `/uploads/${defaultName}`;
     const nextForm = { ...formData, [field]: dummyUrl };
@@ -468,23 +559,13 @@ export default function ServicioDetallePage({
                 </div>
               </div>
 
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-                <span className="text-xs font-bold text-slate-800 block">PDF de Términos de Referencia (TDR)</span>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => handleSimulateUpload('tdrPdf', 'TDR_SUSALUD_Alfombras.pdf')}
-                    className="flex items-center gap-2 px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-xs"
-                  >
-                    <Upload className="w-4 h-4" />
-                    Subir TDR (PDF)
-                  </button>
-                  {formData.tdrPdf && (
-                    <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
-                      ✓ TDR adjuntado
-                    </span>
-                  )}
-                </div>
-              </div>
+              {renderUploadBox(
+                'tdrPdf',
+                'PDF de Términos de Referencia (TDR)',
+                'Documento base donde la entidad solicita la cotización técnica y económica',
+                'Seleccionar y Subir TDR (PDF)',
+                'bg-blue-600 hover:bg-blue-500'
+              )}
             </div>
 
             <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
@@ -551,27 +632,13 @@ export default function ServicioDetallePage({
               </div>
             </div>
 
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center justify-between">
-              <div>
-                <span className="text-xs font-bold text-slate-800 block">PDF de la Cotización Formal</span>
-                <span className="text-[11px] text-slate-500">Documento con el membrete de la empresa y desglose de partidas</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => handleSimulateUpload('cotizacionPdf', 'Cotizacion_Formal.pdf')}
-                  className="flex items-center gap-2 px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-xs"
-                >
-                  <Upload className="w-4 h-4" />
-                  Subir Cotización (PDF)
-                </button>
-                {formData.cotizacionPdf && (
-                  <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
-                    ✓ PDF adjuntado
-                  </span>
-                )}
-              </div>
-            </div>
+            {renderUploadBox(
+              'cotizacionPdf',
+              'PDF de la Cotización Formal',
+              'Documento con el membrete de la empresa y desglose de partidas',
+              'Seleccionar y Subir Cotización (PDF)',
+              'bg-blue-600 hover:bg-blue-500'
+            )}
 
             <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
               <span className="text-xs text-slate-500 font-medium">¿Cotización elaborada y enviada a la entidad?</span>
@@ -682,20 +749,13 @@ export default function ServicioDetallePage({
               </div>
             </div>
 
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center justify-between">
-              <div>
-                <span className="text-xs font-bold text-slate-800 block">PDF Oficial de la Orden de Servicio (SIGA / OSCE)</span>
-                <span className="text-[11px] text-slate-500">Documento sellado por la Oficina de Logística</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleSimulateUpload('ordenServicioPdf', 'Orden_Servicio_0000701_SUSALUD.pdf')}
-                className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold"
-              >
-                <Upload className="w-4 h-4" />
-                Subir O/S (PDF)
-              </button>
-            </div>
+            {renderUploadBox(
+              'ordenServicioPdf',
+              'PDF Oficial de la Orden de Servicio (SIGA / OSCE)',
+              'Documento sellado por la Oficina de Logística',
+              'Seleccionar y Subir O/S (PDF)',
+              'bg-slate-900 hover:bg-slate-800'
+            )}
 
             <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
               <span className="text-xs text-slate-500 font-medium">¿N° de Orden de Servicio y SIAF registrados?</span>
@@ -729,19 +789,14 @@ export default function ServicioDetallePage({
                 />
               </div>
 
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center justify-between">
-                <div>
-                  <span className="text-xs font-bold text-slate-800 block">Informe Final + Panel Fotográfico</span>
-                  <span className="text-[11px] text-slate-500">PDF con sustento de actividades ejecutadas</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleSimulateUpload('informePdf', 'Informe_Final_Servicio.pdf')}
-                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold"
-                >
-                  <Upload className="w-4 h-4" />
-                  Subir Informe
-                </button>
+              <div>
+                {renderUploadBox(
+                  'informePdf',
+                  'Informe Final + Panel Fotográfico',
+                  'PDF con sustento de actividades ejecutadas',
+                  'Subir Informe (PDF)',
+                  'bg-purple-600 hover:bg-purple-500'
+                )}
               </div>
             </div>
 
@@ -801,20 +856,13 @@ export default function ServicioDetallePage({
               </div>
             </div>
 
-            <div className="bg-teal-50 p-4 rounded-xl border border-teal-200 flex items-center justify-between">
-              <div>
-                <span className="text-xs font-bold text-teal-900 block">PDF / XML de Factura Electrónica SUNAT</span>
-                <span className="text-[11px] text-teal-700">Evidencia para sustentar la prestación y posterior cobro</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleSimulateUpload('facturaPdf', 'Factura_E001_150_SUNAT.pdf')}
-                className="flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-bold shadow-xs"
-              >
-                <Upload className="w-4 h-4" />
-                Subir Factura (PDF)
-              </button>
-            </div>
+            {renderUploadBox(
+              'facturaPdf',
+              'PDF / XML de Factura Electrónica SUNAT',
+              'Evidencia para sustentar la prestación y posterior cobro',
+              'Seleccionar y Subir Factura (PDF)',
+              'bg-teal-600 hover:bg-teal-500'
+            )}
 
             <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
               <span className="text-xs text-slate-500 font-medium">¿Factura emitida y entregada a la entidad?</span>
@@ -860,20 +908,13 @@ export default function ServicioDetallePage({
               </div>
             </div>
 
-            <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200 flex items-center justify-between">
-              <div>
-                <span className="text-xs font-bold text-emerald-900 block">PDF del Acta de Conformidad Firmada</span>
-                <span className="text-[11px] text-emerald-700">Documento obligatorio para que la entidad gire el pago</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleSimulateUpload('conformidadPdf', 'Acta_Conformidad_Firmada.pdf')}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-xs"
-              >
-                <Upload className="w-4 h-4" />
-                Subir Acta Conformidad
-              </button>
-            </div>
+            {renderUploadBox(
+              'conformidadPdf',
+              'PDF del Acta de Conformidad Firmada',
+              'Documento obligatorio para que la entidad gire el pago',
+              'Seleccionar y Subir Acta Conformidad (PDF)',
+              'bg-emerald-600 hover:bg-emerald-500'
+            )}
 
             <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
               <span className="text-xs text-slate-500 font-medium">¿Acta de Conformidad firmada y recibida?</span>
@@ -932,33 +973,21 @@ export default function ServicioDetallePage({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center justify-between">
-                <div>
-                  <span className="text-xs font-bold text-slate-800 block">Constancia Detracción SUNAT</span>
-                  <span className="text-[11px] text-slate-500">Depósito en Banco de la Nación</span>
-                </div>
-                <button
-                  onClick={() => handleSimulateUpload('detraccionPdf', 'Constancia_Detraccion.pdf')}
-                  className="flex items-center gap-2 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold"
-                >
-                  <Upload className="w-3.5 h-3.5" />
-                  Subir
-                </button>
-              </div>
+              {renderUploadBox(
+                'detraccionPdf',
+                'Constancia Detracción SUNAT',
+                'Depósito en Banco de la Nación',
+                'Subir Detracción (PDF)',
+                'bg-slate-800 hover:bg-slate-700'
+              )}
 
-              <div className="bg-green-50 p-4 rounded-xl border border-green-200 flex items-center justify-between">
-                <div>
-                  <span className="text-xs font-bold text-green-900 block">Reporte de Consulta SIAF Pagado</span>
-                  <span className="text-[11px] text-green-700">Estado "Giré / Pagado"</span>
-                </div>
-                <button
-                  onClick={() => handleSimulateUpload('pagoPdf', 'Consulta_SIAF_Pagado.pdf')}
-                  className="flex items-center gap-2 px-3.5 py-2 bg-green-600 hover:bg-green-500 text-white rounded-xl text-xs font-bold"
-                >
-                  <Upload className="w-3.5 h-3.5" />
-                  Subir
-                </button>
-              </div>
+              {renderUploadBox(
+                'pagoPdf',
+                'Reporte de Consulta SIAF Pagado',
+                'Estado "Giré / Pagado"',
+                'Subir SIAF Pagado (PDF)',
+                'bg-green-600 hover:bg-green-500'
+              )}
             </div>
 
             <div className="pt-2">

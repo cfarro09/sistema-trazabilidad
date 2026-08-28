@@ -16,6 +16,7 @@ import {
   FileCheck,
   DollarSign,
   Layers,
+  Upload,
 } from 'lucide-react';
 import Modal from '@/components/Modal';
 
@@ -38,6 +39,7 @@ export default function CotizacionesPage() {
     fecha: '',
     objetoServicio: '',
     montoTotal: '',
+    pdfUrl: '',
   });
 
   const fetchCotizaciones = async () => {
@@ -404,6 +406,46 @@ export default function CotizacionesPage() {
               onChange={(e) => setFormAntigua({ ...formAntigua, montoTotal: e.target.value })}
               className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
             />
+          </div>
+
+          <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-800 block">PDF de la Cotización Escaneada (Opcional)</span>
+              <span className="text-[11px] text-slate-500">
+                {formAntigua.pdfUrl ? '✓ Archivo adjuntado' : 'Selecciona el PDF desde tu computadora'}
+              </span>
+            </div>
+            <label className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer">
+              <Upload className="w-3.5 h-3.5" />
+              <span>{formAntigua.pdfUrl ? 'Cambiar PDF' : 'Seleccionar Archivo'}</span>
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const uploadData = new FormData();
+                    uploadData.append('file', file);
+                    uploadData.append('folder', 'cotizaciones');
+                    const res = await fetch('/api/upload', {
+                      method: 'POST',
+                      body: uploadData,
+                    });
+                    const resData = await res.json();
+                    if (resData.success) {
+                      setFormAntigua((prev) => ({ ...prev, pdfUrl: resData.url }));
+                      alert(`Archivo "${file.name}" cargado exitosamente.`);
+                    } else {
+                      alert('Error: ' + resData.error);
+                    }
+                  } catch (err) {
+                    alert('Error al subir archivo');
+                  }
+                }}
+                className="hidden"
+              />
+            </label>
           </div>
 
           <div className="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
