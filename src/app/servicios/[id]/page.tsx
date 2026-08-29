@@ -18,6 +18,7 @@ import {
   Receipt,
   Landmark,
   Save,
+  Trash2,
 } from 'lucide-react';
 import StageBadge from '@/components/StageBadge';
 
@@ -178,6 +179,16 @@ export default function ServicioDetallePage({
     }
   };
 
+  const handleDeleteFile = async (field: keyof typeof formData, title: string) => {
+    if (!confirm(`¿Estás seguro de eliminar el archivo "${title}" de este expediente?`)) {
+      return;
+    }
+    const patch = { [field]: null };
+    setFormData((prev) => ({ ...prev, [field]: '' }));
+    await handleSave(undefined, patch);
+    alert(`Archivo "${title}" eliminado.`);
+  };
+
   const renderUploadBox = (
     field: keyof typeof formData,
     title: string,
@@ -196,15 +207,26 @@ export default function ServicioDetallePage({
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {isUploaded && (
-            <a
-              href={formData[field]}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 py-2 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 flex items-center gap-1.5 transition-colors shadow-2xs"
-            >
-              <FileText className="w-3.5 h-3.5 text-blue-600" />
-              Ver Archivo
-            </a>
+            <>
+              <a
+                href={formData[field]}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-2 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 flex items-center gap-1.5 transition-colors shadow-2xs"
+              >
+                <FileText className="w-3.5 h-3.5 text-blue-600" />
+                Ver Archivo
+              </a>
+              <button
+                type="button"
+                onClick={() => handleDeleteFile(field, title)}
+                title="Eliminar este archivo"
+                className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl border border-red-200 text-xs font-bold flex items-center gap-1 transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Eliminar</span>
+              </button>
+            </>
           )}
           <label
             className={`flex items-center gap-2 px-3.5 py-2 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer transition-all ${colorClass} ${
@@ -220,7 +242,7 @@ export default function ServicioDetallePage({
               {isCurrentUploading
                 ? 'Subiendo...'
                 : isUploaded
-                ? 'Reemplazar Archivo'
+                ? 'Reemplazar'
                 : buttonText}
             </span>
             <input
