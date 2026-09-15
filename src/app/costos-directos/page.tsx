@@ -28,6 +28,10 @@ import {
   MapPin,
   ExternalLink,
   Truck,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from 'lucide-react';
 import {
   VALOR_M2_GRUPOS,
@@ -46,6 +50,122 @@ import {
   APUItem,
 } from '@/lib/costos-directos-data';
 
+interface TablePaginationProps {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  itemsPerPage: number;
+  itemName: string;
+  onPageChange: (newPage: number) => void;
+  accentColor?: 'sky' | 'indigo' | 'blue';
+}
+
+function TablePagination({
+  currentPage,
+  totalPages,
+  totalItems,
+  itemsPerPage,
+  itemName,
+  onPageChange,
+  accentColor = 'sky',
+}: TablePaginationProps) {
+  const [inputVal, setInputVal] = useState(String(currentPage));
+
+  useEffect(() => {
+    setInputVal(String(currentPage));
+  }, [currentPage]);
+
+  const handlePageInput = (val: string) => {
+    setInputVal(val);
+    const num = parseInt(val, 10);
+    if (!isNaN(num) && num >= 1 && num <= totalPages) {
+      onPageChange(num);
+    }
+  };
+
+  const startIdx = totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
+  const endIdx = Math.min(currentPage * itemsPerPage, totalItems);
+
+  const focusRing =
+    accentColor === 'indigo'
+      ? 'focus:ring-indigo-500'
+      : accentColor === 'blue'
+      ? 'focus:ring-blue-500'
+      : 'focus:ring-sky-500';
+
+  return (
+    <div className="p-3.5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+      <div className="text-slate-600">
+        Mostrando <strong className="text-slate-900">{startIdx}</strong> a{' '}
+        <strong className="text-slate-900">{endIdx}</strong> de{' '}
+        <strong className="text-slate-900">{totalItems}</strong> {itemName}
+      </div>
+
+      <div className="flex items-center gap-1">
+        {/* Ir al Inicio */}
+        <button
+          type="button"
+          disabled={currentPage <= 1}
+          onClick={() => onPageChange(1)}
+          title="Ir al inicio (Primera página)"
+          className="p-2 bg-white border border-slate-300 rounded-xl hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-white text-slate-700 hover:text-slate-900 transition-colors shadow-2xs cursor-pointer disabled:cursor-not-allowed"
+        >
+          <ChevronsLeft className="w-4 h-4" />
+        </button>
+
+        {/* Anterior */}
+        <button
+          type="button"
+          disabled={currentPage <= 1}
+          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+          title="Página anterior"
+          className="p-2 bg-white border border-slate-300 rounded-xl hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-white text-slate-700 hover:text-slate-900 transition-colors shadow-2xs cursor-pointer disabled:cursor-not-allowed"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+
+        {/* Ir a una página */}
+        <div className="flex items-center gap-1.5 mx-2 text-xs text-slate-700">
+          <span className="text-slate-500 font-medium">Pág.</span>
+          <input
+            type="number"
+            min={1}
+            max={totalPages}
+            value={inputVal}
+            onChange={(e) => handlePageInput(e.target.value)}
+            onBlur={() => setInputVal(String(currentPage))}
+            title="Ir a una página específica"
+            className={`w-14 px-2 py-1 text-center font-mono font-bold text-slate-900 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 ${focusRing} shadow-2xs`}
+          />
+          <span className="text-slate-500 font-bold">de {totalPages}</span>
+        </div>
+
+        {/* Siguiente */}
+        <button
+          type="button"
+          disabled={currentPage >= totalPages}
+          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+          title="Página siguiente"
+          className="p-2 bg-white border border-slate-300 rounded-xl hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-white text-slate-700 hover:text-slate-900 transition-colors shadow-2xs cursor-pointer disabled:cursor-not-allowed"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+
+        {/* Ir al Final */}
+        <button
+          type="button"
+          disabled={currentPage >= totalPages}
+          onClick={() => onPageChange(totalPages)}
+          title="Ir al final (Última página)"
+          className="p-2 bg-white border border-slate-300 rounded-xl hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-white text-slate-700 hover:text-slate-900 transition-colors shadow-2xs cursor-pointer disabled:cursor-not-allowed"
+        >
+          <ChevronsRight className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function CostosDirectosPage() {
   const [activeTab, setActiveTab] = useState<'insumos' | 'valorm2' | 'partidas' | 'apu' | 'proveedores'>('insumos');
   const [search, setSearch] = useState('');
@@ -56,10 +176,13 @@ export default function CostosDirectosPage() {
   const [selectedGrupoModal, setSelectedGrupoModal] = useState<GrupoIndiceInsumo | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  // Paginación para alto rendimiento con más de 3,000 ítems
+  // Paginación para alto rendimiento con más de 3,000 ítems (20 por página)
   const [pageInsumos, setPageInsumos] = useState(1);
   const [pagePartidas, setPagePartidas] = useState(1);
-  const ITEMS_PER_PAGE = 50;
+  const [pageValorM2, setPageValorM2] = useState(1);
+  const [pagePartidasPresupuesto, setPagePartidasPresupuesto] = useState(1);
+  const [pageProveedores, setPageProveedores] = useState(1);
+  const ITEMS_PER_PAGE = 20;
 
   useEffect(() => {
     setPageInsumos(1);
@@ -68,6 +191,18 @@ export default function CostosDirectosPage() {
   useEffect(() => {
     setPagePartidas(1);
   }, [search, selectedEspecialidad]);
+
+  useEffect(() => {
+    setPageValorM2(1);
+  }, [search]);
+
+  useEffect(() => {
+    setPagePartidasPresupuesto(1);
+  }, [search]);
+
+  useEffect(() => {
+    setPageProveedores(1);
+  }, [search]);
 
   const handleCopy = (text: string, code: string) => {
     navigator.clipboard.writeText(text);
@@ -174,6 +309,27 @@ export default function CostosDirectosPage() {
   const paginatedPartidasOEHU = filteredPartidasOEHU.slice(
     (pagePartidas - 1) * ITEMS_PER_PAGE,
     pagePartidas * ITEMS_PER_PAGE
+  );
+
+  // Paginación de Valor M2 (20 rows)
+  const totalPagesValorM2 = Math.max(1, Math.ceil(filteredGrupos.length / ITEMS_PER_PAGE));
+  const paginatedGrupos = filteredGrupos.slice(
+    (pageValorM2 - 1) * ITEMS_PER_PAGE,
+    pageValorM2 * ITEMS_PER_PAGE
+  );
+
+  // Paginación de Partidas Presupuesto (20 rows)
+  const totalPagesPartidasPresupuesto = Math.max(1, Math.ceil(filteredPartidasPresupuesto.length / ITEMS_PER_PAGE));
+  const paginatedPartidasPresupuesto = filteredPartidasPresupuesto.slice(
+    (pagePartidasPresupuesto - 1) * ITEMS_PER_PAGE,
+    pagePartidasPresupuesto * ITEMS_PER_PAGE
+  );
+
+  // Paginación de Proveedores (20 rows)
+  const totalPagesProveedores = Math.max(1, Math.ceil(filteredProveedores.length / ITEMS_PER_PAGE));
+  const paginatedProveedores = filteredProveedores.slice(
+    (pageProveedores - 1) * ITEMS_PER_PAGE,
+    pageProveedores * ITEMS_PER_PAGE
   );
 
   // Totales de Valor m2
@@ -457,34 +613,15 @@ export default function CostosDirectosPage() {
               </div>
 
               {/* Controles de Paginación Insumos */}
-              <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-                <div className="text-slate-600">
-                  Mostrando <strong>{filteredInsumos.length > 0 ? (pageInsumos - 1) * ITEMS_PER_PAGE + 1 : 0}</strong> a{' '}
-                  <strong>{Math.min(pageInsumos * ITEMS_PER_PAGE, filteredInsumos.length)}</strong> de{' '}
-                  <strong>{filteredInsumos.length}</strong> recursos catalogados
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    disabled={pageInsumos <= 1}
-                    onClick={() => setPageInsumos((prev) => Math.max(prev - 1, 1))}
-                    className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-bold disabled:opacity-40 hover:bg-slate-100 transition-colors shadow-2xs"
-                  >
-                    Anterior
-                  </button>
-                  <span className="font-bold text-slate-700 font-mono px-2">
-                    Pág. {pageInsumos} de {totalPagesInsumos}
-                  </span>
-                  <button
-                    type="button"
-                    disabled={pageInsumos >= totalPagesInsumos}
-                    onClick={() => setPageInsumos((prev) => Math.min(prev + 1, totalPagesInsumos))}
-                    className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-bold disabled:opacity-40 hover:bg-slate-100 transition-colors shadow-2xs"
-                  >
-                    Siguiente
-                  </button>
-                </div>
-              </div>
+              <TablePagination
+                currentPage={pageInsumos}
+                totalPages={totalPagesInsumos}
+                totalItems={filteredInsumos.length}
+                itemsPerPage={ITEMS_PER_PAGE}
+                itemName="recursos catalogados"
+                onPageChange={setPageInsumos}
+                accentColor="sky"
+              />
             </div>
           ) : (
             /* VISTA 2: ÍNDICE DE LA A A LA Z */
@@ -601,7 +738,7 @@ export default function CostosDirectosPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium">
-                  {filteredGrupos.map((g) => (
+                  {paginatedGrupos.map((g) => (
                     <tr key={g.item} className="hover:bg-indigo-50/40 transition-colors">
                       <td className="py-2.5 px-4 text-center font-mono font-bold text-slate-600 bg-slate-50/50">
                         {g.item}
@@ -649,6 +786,17 @@ export default function CostosDirectosPage() {
                 </tfoot>
               </table>
             </div>
+
+            {/* Controles de Paginación Valor M2 */}
+            <TablePagination
+              currentPage={pageValorM2}
+              totalPages={totalPagesValorM2}
+              totalItems={filteredGrupos.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              itemName="grupos de costo directo"
+              onPageChange={setPageValorM2}
+              accentColor="indigo"
+            />
           </div>
 
           {/* TABLA 2: PRESUPUESTO DETALLADO POR METRADOS (PÁGINAS 1.2 Y 1.3) */}
@@ -681,7 +829,7 @@ export default function CostosDirectosPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium">
-                  {filteredPartidasPresupuesto.map((p) => (
+                  {paginatedPartidasPresupuesto.map((p) => (
                     <tr key={p.item} className="hover:bg-indigo-50/40 transition-colors">
                       <td className="py-2.5 px-4 text-center font-mono font-bold text-slate-600 bg-slate-50/50">
                         {p.item}
@@ -715,6 +863,17 @@ export default function CostosDirectosPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Controles de Paginación Partidas Presupuesto */}
+            <TablePagination
+              currentPage={pagePartidasPresupuesto}
+              totalPages={totalPagesPartidasPresupuesto}
+              totalItems={filteredPartidasPresupuesto.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              itemName="partidas presupuestadas"
+              onPageChange={setPagePartidasPresupuesto}
+              accentColor="indigo"
+            />
           </div>
         </div>
       )}
@@ -794,34 +953,15 @@ export default function CostosDirectosPage() {
           </div>
 
           {/* Controles de Paginación Partidas OE & HU */}
-          <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <div className="text-slate-600">
-              Mostrando <strong>{filteredPartidasOEHU.length > 0 ? (pagePartidas - 1) * ITEMS_PER_PAGE + 1 : 0}</strong> a{' '}
-              <strong>{Math.min(pagePartidas * ITEMS_PER_PAGE, filteredPartidasOEHU.length)}</strong> de{' '}
-              <strong>{filteredPartidasOEHU.length}</strong> partidas catalogadas
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                disabled={pagePartidas <= 1}
-                onClick={() => setPagePartidas((prev) => Math.max(prev - 1, 1))}
-                className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-bold disabled:opacity-40 hover:bg-slate-100 transition-colors shadow-2xs"
-              >
-                Anterior
-              </button>
-              <span className="font-bold text-slate-700 font-mono px-2">
-                Pág. {pagePartidas} de {totalPagesPartidas}
-              </span>
-              <button
-                type="button"
-                disabled={pagePartidas >= totalPagesPartidas}
-                onClick={() => setPagePartidas((prev) => Math.min(prev + 1, totalPagesPartidas))}
-                className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-bold disabled:opacity-40 hover:bg-slate-100 transition-colors shadow-2xs"
-              >
-                Siguiente
-              </button>
-            </div>
-          </div>
+          <TablePagination
+            currentPage={pagePartidas}
+            totalPages={totalPagesPartidas}
+            totalItems={filteredPartidasOEHU.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            itemName="partidas catalogadas"
+            onPageChange={setPagePartidas}
+            accentColor="indigo"
+          />
         </div>
       )}
 
@@ -1003,7 +1143,7 @@ export default function CostosDirectosPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredProveedores.map((p, idx) => (
+            {paginatedProveedores.map((p, idx) => (
               <div key={idx} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
                 <div className="flex items-start justify-between gap-2">
                   <h4 className="font-extrabold text-sm text-slate-900">{p.nombre}</h4>
@@ -1047,6 +1187,17 @@ export default function CostosDirectosPage() {
               </div>
             ))}
           </div>
+
+          {/* Controles de Paginación Proveedores */}
+          <TablePagination
+            currentPage={pageProveedores}
+            totalPages={totalPagesProveedores}
+            totalItems={filteredProveedores.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            itemName="proveedores registrados"
+            onPageChange={setPageProveedores}
+            accentColor="indigo"
+          />
         </div>
       )}
     </div>
