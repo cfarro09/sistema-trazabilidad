@@ -23,27 +23,36 @@ import {
   ListFilter,
   Grid3X3,
   List,
+  Phone,
+  Mail,
+  MapPin,
+  ExternalLink,
+  Truck,
 } from 'lucide-react';
 import {
   VALOR_M2_GRUPOS,
   PARTIDAS_PRESUPUESTO,
+  PARTIDAS_OE_HU,
   INSUMOS_PRECIOS,
   INDICE_GRUPOS_INSUMOS,
+  PROVEEDORES_DIRECTORIO,
   APU_CATALOGO,
   ValorM2Grupo,
   PartidaPresupuesto,
+  PartidaUnitarioOEHU,
   InsumoPrecio,
   GrupoIndiceInsumo,
+  ProveedorInfo,
   APUItem,
 } from '@/lib/costos-directos-data';
 
 export default function CostosDirectosPage() {
-  const [activeTab, setActiveTab] = useState<'valorm2' | 'partidas' | 'insumos' | 'apu'>('insumos');
+  const [activeTab, setActiveTab] = useState<'insumos' | 'valorm2' | 'partidas' | 'apu' | 'proveedores'>('insumos');
   const [search, setSearch] = useState('');
   const [selectedEspecialidad, setSelectedEspecialidad] = useState<string>('ALL');
   const [selectedTipoInsumo, setSelectedTipoInsumo] = useState<string>('ALL');
   const [selectedLetra, setSelectedLetra] = useState<string>('ALL');
-  const [vistaInsumos, setVistaInsumos] = useState<'indice' | 'tabla'>('indice');
+  const [vistaInsumos, setVistaInsumos] = useState<'tabla' | 'indice'>('tabla');
   const [selectedGrupoModal, setSelectedGrupoModal] = useState<GrupoIndiceInsumo | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
@@ -90,14 +99,15 @@ export default function CostosDirectosPage() {
       p.grupoItem.includes(search)
   );
 
-  // Filtrado de Partidas OE & HU
-  const filteredPartidas = PARTIDAS_PRESUPUESTO.filter((p) => {
+  // Filtrado de Partidas Unitarias OE & HU
+  const filteredPartidasOEHU = PARTIDAS_OE_HU.filter((p) => {
     const matchesEspecialidad =
       selectedEspecialidad === 'ALL' || p.especialidad === selectedEspecialidad;
     const matchesSearch =
       !search ||
-      p.item.toLowerCase().includes(search.toLowerCase()) ||
+      p.codigo.toLowerCase().includes(search.toLowerCase()) ||
       p.partida.toLowerCase().includes(search.toLowerCase()) ||
+      p.subcategoria.toLowerCase().includes(search.toLowerCase()) ||
       p.unidad.toLowerCase().includes(search.toLowerCase());
     return matchesEspecialidad && matchesSearch;
   });
@@ -116,6 +126,18 @@ export default function CostosDirectosPage() {
     return matchesTipo && matchesSearch;
   });
 
+  // Filtrado de Proveedores
+  const filteredProveedores = PROVEEDORES_DIRECTORIO.filter((p) => {
+    if (!search) return true;
+    const term = search.toLowerCase();
+    return (
+      p.nombre.toLowerCase().includes(term) ||
+      (p.direccion && p.direccion.toLowerCase().includes(term)) ||
+      (p.email && p.email.toLowerCase().includes(term)) ||
+      p.pagina.includes(term)
+    );
+  });
+
   // Filtrado de APU
   const filteredAPUs = APU_CATALOGO.filter((a) => {
     const matchesEspecialidad =
@@ -127,7 +149,7 @@ export default function CostosDirectosPage() {
     return matchesEspecialidad && matchesSearch;
   });
 
-  // Totales
+  // Totales de Valor m2
   const totalParcialSoles = VALOR_M2_GRUPOS.reduce((acc, g) => acc + g.parcialSoles, 0);
   const totalValorM2Soles = VALOR_M2_GRUPOS.reduce((acc, g) => acc + g.valorM2Soles, 0);
   const totalValorM2Dolares = VALOR_M2_GRUPOS.reduce((acc, g) => acc + g.valorM2Dolares, 0);
@@ -142,7 +164,7 @@ export default function CostosDirectosPage() {
             Módulo de Costos Directos & Precios Unitarios
           </h1>
           <p className="text-sm text-slate-500">
-            Base de datos referencial de precios de insumos (Pág. 3.01 a 3.31), partidas OE/HU y análisis de precios unitarios (APU)
+            Base técnica completa: Suplemento Técnico Marzo 2025 • Costos Perú • TC: S/ 3.683 por US$ 1.00
           </p>
         </div>
 
@@ -180,7 +202,7 @@ export default function CostosDirectosPage() {
           }`}
         >
           <Building2 className="w-4 h-4" />
-          1. Valor m² de Construcción & Presupuesto
+          1. Valor m² de Construcción & Presupuesto (35 Grupos)
         </button>
 
         <button
@@ -203,237 +225,287 @@ export default function CostosDirectosPage() {
               : 'text-slate-600 hover:bg-slate-50'
           }`}
         >
-          <FileSpreadsheet className="w-4 h-4" />
+          <Wrench className="w-4 h-4" />
           4. Análisis de Precios Unitarios (APU)
+        </button>
+
+        <button
+          onClick={() => setActiveTab('proveedores')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+            activeTab === 'proveedores'
+              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+              : 'text-slate-600 hover:bg-slate-50'
+          }`}
+        >
+          <Truck className="w-4 h-4" />
+          Directorio Proveedores
         </button>
       </div>
 
-      {/* Barra de Búsqueda Dinámica */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs">
-        <div className="relative w-full sm:w-96">
+      {/* BARRA DE BÚSQUEDA Y FILTROS */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="relative w-full md:w-96">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             placeholder={
               activeTab === 'insumos'
-                ? "Buscar grupo o página (ej. Abrazadera, Cemento, Travex, 3.17, 3.23...)"
-                : "Buscar por código, descripción, material, etc..."
+                ? 'Buscar material, perno, cemento, ladrillo, pág...'
+                : activeTab === 'partidas'
+                ? 'Buscar partida OE/HU, excavación, concreto...'
+                : activeTab === 'proveedores'
+                ? 'Buscar proveedor, contacto, dirección...'
+                : 'Buscar grupo, partida...'
             }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all font-medium"
+            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all"
           />
         </div>
 
-        {activeTab === 'insumos' && (
-          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
-              <button
-                onClick={() => setVistaInsumos('indice')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  vistaInsumos === 'indice'
-                    ? 'bg-white text-sky-700 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <Grid3X3 className="w-3.5 h-3.5" />
-                Directorio por Grupos (Pág 3.1 - 3.31)
-              </button>
-              <button
-                onClick={() => setVistaInsumos('tabla')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  vistaInsumos === 'tabla'
-                    ? 'bg-white text-sky-700 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <List className="w-3.5 h-3.5" />
-                Tabla Detallada con Precios S/
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* CONTENIDO TAB: 3. PRECIOS DE INSUMOS (MATERIALES - MANO DE OBRA - EQUIPOS) */}
-      {activeTab === 'insumos' && (
-        <div className="space-y-6">
-          {/* BANNER IDENTICO AL DEL DOCUMENTO CON NÚMERO 3 AZUL */}
-          <div className="bg-sky-500 rounded-2xl p-6 text-white shadow-md flex items-center gap-6">
-            <div className="w-20 h-20 bg-sky-700 rounded-2xl flex items-center justify-center text-white font-black text-5xl shrink-0 shadow-inner border border-sky-400/30">
-              3
-            </div>
-            <div>
-              <h2 className="text-xl sm:text-2xl font-black uppercase tracking-wider">
-                PRECIOS DE INSUMOS
-              </h2>
-              <p className="text-sm font-bold text-sky-100 uppercase tracking-wide mt-0.5">
-                MATERIALES DE CONSTRUCCIÓN - MANO DE OBRA - EQUIPOS
-              </p>
-              <p className="text-xs text-sky-200 mt-1">
-                Catálogo general de costos de insumos clasificados por grupos de la A a la Z (Páginas 3.01 a 3.31)
-              </p>
-            </div>
-          </div>
-
-          {/* VISTA 1: DIRECTORIO E ÍNDICE DE GRUPOS EXACTAMENTE COMO EN LA FOTO */}
-          {vistaInsumos === 'indice' && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-6">
-              {/* Barra de Filtro Rápido por Letra A-Z */}
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-100">
-                <span className="text-xs font-bold text-slate-400 mr-2 shrink-0">Filtrar Letra:</span>
+        {/* Filtros específicos según pestaña */}
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+          {activeTab === 'insumos' && (
+            <>
+              <div className="flex bg-slate-100 p-1 rounded-xl">
                 <button
-                  onClick={() => setSelectedLetra('ALL')}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                    selectedLetra === 'ALL'
-                      ? 'bg-sky-600 text-white'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  onClick={() => setVistaInsumos('tabla')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                    vistaInsumos === 'tabla'
+                      ? 'bg-white text-indigo-700 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  TODOS
+                  <List className="w-3.5 h-3.5" />
+                  Catálogo con Precios
                 </button>
-                {letrasDisponibles.map((letra) => (
-                  <button
-                    key={letra}
-                    onClick={() => setSelectedLetra(letra)}
-                    className={`w-7 h-7 rounded-lg text-xs font-black transition-all flex items-center justify-center ${
-                      selectedLetra === letra
-                        ? 'bg-sky-600 text-white shadow-xs'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                    }`}
+                <button
+                  onClick={() => setVistaInsumos('indice')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                    vistaInsumos === 'indice'
+                      ? 'bg-white text-indigo-700 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Grid3X3 className="w-3.5 h-3.5" />
+                  Índice A - Z (Págs 3.1 - 3.31)
+                </button>
+              </div>
+
+              {vistaInsumos === 'tabla' && (
+                <div className="flex items-center gap-1.5">
+                  <Filter className="w-3.5 h-3.5 text-slate-400" />
+                  <select
+                    value={selectedTipoInsumo}
+                    onChange={(e) => setSelectedTipoInsumo(e.target.value)}
+                    className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:bg-white focus:ring-2 focus:ring-indigo-500"
                   >
-                    {letra}
-                  </button>
-                ))}
-              </div>
-
-              {/* Columnas del Directorio (GRUPO | PAG.) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {Object.keys(gruposPorLetra)
-                  .sort()
-                  .map((letra) => (
-                    <div
-                      key={letra}
-                      className="bg-slate-50/60 rounded-2xl border border-slate-200 overflow-hidden flex flex-col"
-                    >
-                      {/* Cabecera de Columna Azul estilo CAPECO */}
-                      <div className="bg-sky-600 text-white px-4 py-2 flex items-center justify-between text-xs font-bold uppercase tracking-wider">
-                        <span>GRUPO</span>
-                        <span>PAG.</span>
-                      </div>
-
-                      <div className="p-3">
-                        <div className="text-base font-black text-sky-700 px-2 py-1 mb-1 border-b border-sky-200/60 flex items-center justify-between">
-                          <span>{letra}</span>
-                          <span className="text-[10px] font-mono text-slate-400">
-                            {gruposPorLetra[letra].length} grupos
-                          </span>
-                        </div>
-
-                        <div className="divide-y divide-slate-200/60">
-                          {gruposPorLetra[letra].map((item, idx) => (
-                            <div
-                              key={idx}
-                              onClick={() => {
-                                const matched = INSUMOS_PRECIOS.filter(
-                                  (i) => i.grupo === item.grupo || i.pagina === item.pagina
-                                );
-                                setSelectedGrupoModal(item);
-                              }}
-                              className="py-2 px-2 hover:bg-sky-100/50 rounded-lg cursor-pointer transition-colors flex items-center justify-between gap-3 text-xs group"
-                            >
-                              <div className="flex-1">
-                                <span className="font-bold text-slate-800 group-hover:text-sky-700 transition-colors block text-[11px]">
-                                  {item.grupo}
-                                </span>
-                                {item.descripcion && (
-                                  <span className="text-[10px] text-slate-400 block line-clamp-1">
-                                    {item.descripcion}
-                                  </span>
-                                )}
-                              </div>
-                              <span className="font-mono font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded text-[11px] shrink-0 group-hover:bg-sky-600 group-hover:text-white transition-colors">
-                                {item.pagina}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
+                    <option value="ALL">Todos los Tipos</option>
+                    <option value="MATERIAL">Materiales</option>
+                    <option value="MANO_DE_OBRA">Mano de Obra (CAPECO)</option>
+                    <option value="EQUIPO">Maquinaria y Equipos</option>
+                  </select>
+                </div>
+              )}
+            </>
           )}
 
-          {/* VISTA 2: TABLA DETALLADA CON PRECIOS S/ SIN IGV Y CON IGV */}
-          {vistaInsumos === 'tabla' && (
-            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-              <div className="p-4 bg-slate-900 text-white flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold tracking-wide">
-                    TABLA DETALLADA DE PRECIOS DE INSUMOS & MATERIALES
-                  </h3>
-                  <p className="text-xs text-slate-300">
-                    Incluye precios referenciales en Soles (S/) sin IGV y con IGV para presupuestos
-                  </p>
-                </div>
-                <span className="text-xs bg-sky-600 text-white font-mono px-3 py-1 rounded-lg font-bold">
-                  {filteredInsumos.length} Insumos Registrados
-                </span>
-              </div>
+          {(activeTab === 'partidas' || activeTab === 'apu') && (
+            <div className="flex items-center gap-1.5">
+              <Filter className="w-3.5 h-3.5 text-slate-400" />
+              <select
+                value={selectedEspecialidad}
+                onChange={(e) => setSelectedEspecialidad(e.target.value)}
+                className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:bg-white focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="ALL">Todas las Especialidades</option>
+                <option value="OE">OE - Obras de Edificación</option>
+                <option value="HU">HU - Habilitación Urbana</option>
+                <option value="ARQUITECTURA">Arquitectura</option>
+                <option value="ESTRUCTURAS">Estructuras</option>
+                <option value="SANITARIAS">Inst. Sanitarias</option>
+                <option value="ELECTRICAS">Inst. Eléctricas</option>
+              </select>
+            </div>
+          )}
+        </div>
+      </div>
 
+      {/* CONTENIDO TAB 3: PRECIOS DE INSUMOS */}
+      {activeTab === 'insumos' && (
+        <div className="space-y-6">
+          {/* Banner Oficial Sección 3 */}
+          <div className="bg-gradient-to-r from-sky-600 to-blue-700 p-5 rounded-2xl text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center font-black text-3xl border border-white/20">
+                3
+              </div>
+              <div>
+                <span className="text-xs uppercase tracking-widest font-extrabold text-sky-200">
+                  SECCIÓN 3 • SUPLEMENTO TÉCNICO MARZO 2025
+                </span>
+                <h2 className="text-lg font-black tracking-tight">
+                  PRECIOS DE RECURSOS & INSUMOS (Páginas 3.01 a 3.31)
+                </h2>
+                <p className="text-xs text-sky-100 mt-0.5">
+                  Materiales de Construcción • Mano de Obra (CAPECO) • Tarifas Alquiler Maquinaria Pesada
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="px-3 py-1.5 bg-white/20 rounded-xl text-xs font-bold font-mono">
+                {vistaInsumos === 'tabla' ? `${filteredInsumos.length} Insumos` : `${filteredIndice.length} Grupos A-Z`}
+              </span>
+            </div>
+          </div>
+
+          {/* VISTA 1: TABLA DE PRECIOS DETALLADOS */}
+          {vistaInsumos === 'tabla' ? (
+            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
-                      <th className="py-3 px-4 w-24 text-center">CÓDIGO</th>
-                      <th className="py-3 px-4">DESCRIPCIÓN DEL INSUMO</th>
-                      <th className="py-3 px-4">GRUPO</th>
+                      <th className="py-3 px-4 w-28 text-center">CÓDIGO</th>
+                      <th className="py-3 px-4">DESCRIPCIÓN DEL INSUMO / RECURSO</th>
+                      <th className="py-3 px-4 w-36">GRUPO / PROVEEDOR</th>
                       <th className="py-3 px-4 text-center w-16">PÁG.</th>
                       <th className="py-3 px-4 text-center w-16">UND</th>
-                      <th className="py-3 px-4 text-right w-28">SIN IGV (S/)</th>
-                      <th className="py-3 px-4 text-right w-28">CON IGV (S/)</th>
-                      <th className="py-3 px-4 text-center w-24">ACCIONES</th>
+                      <th className="py-3 px-4 text-right w-28">P. SIN IGV</th>
+                      <th className="py-3 px-4 text-right w-28">INC. IGV</th>
+                      <th className="py-3 px-4 text-center w-24">COPIAR</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-medium">
                     {filteredInsumos.map((i) => (
-                      <tr key={i.codigo} className="hover:bg-slate-50 transition-colors">
-                        <td className="py-2.5 px-4 text-center font-mono font-bold text-slate-600 bg-slate-50">
+                      <tr key={i.codigo} className="hover:bg-sky-50/40 transition-colors">
+                        <td className="py-2.5 px-4 text-center font-mono font-bold text-sky-700 bg-slate-50/50">
                           {i.codigo}
                         </td>
-                        <td className="py-2.5 px-4 text-slate-900 font-bold">
-                          {i.descripcion}
-                          {i.marca && <span className="text-slate-400 font-normal ml-1">({i.marca})</span>}
+                        <td className="py-2.5 px-4">
+                          <span className="font-bold text-slate-900 block">{i.descripcion}</span>
+                          {i.marca && (
+                            <span className="text-[10px] text-slate-400 font-semibold">Marca: {i.marca}</span>
+                          )}
                         </td>
-                        <td className="py-2.5 px-4 text-slate-600 text-[11px]">
-                          {i.grupo}
+                        <td className="py-2.5 px-4">
+                          <span className="text-[11px] font-bold text-slate-700 block">{i.grupo}</span>
+                          {i.proveedor && (
+                            <span className="text-[10px] text-blue-600 block line-clamp-1">🏢 {i.proveedor}</span>
+                          )}
                         </td>
-                        <td className="py-2.5 px-4 text-center font-mono font-bold text-sky-600">
-                          {i.pagina || '3.01'}
+                        <td className="py-2.5 px-4 text-center">
+                          <span className="px-2 py-0.5 bg-slate-100 text-slate-700 font-mono text-[10px] font-bold rounded">
+                            {i.pagina || '3.X'}
+                          </span>
                         </td>
                         <td className="py-2.5 px-4 text-center font-mono font-bold text-slate-500">
                           {i.unidad}
                         </td>
-                        <td className="py-2.5 px-4 text-right font-mono text-slate-700">
-                          S/ {i.precioSinIgv.toFixed(2)}
+                        <td className="py-2.5 px-4 text-right font-mono font-bold text-slate-900">
+                          {i.moneda === 'USD' ? '$' : 'S/'} {i.precioSinIgv.toFixed(2)}
                         </td>
-                        <td className="py-2.5 px-4 text-right font-mono font-extrabold text-sky-700 bg-sky-50/40">
-                          S/ {i.precioConIgv.toFixed(2)}
+                        <td className="py-2.5 px-4 text-right font-mono font-black text-sky-700 bg-sky-50/30">
+                          {i.moneda === 'USD' ? '$' : 'S/'} {i.precioConIgv.toFixed(2)}
                         </td>
                         <td className="py-2.5 px-4 text-center">
                           <button
-                            onClick={() => handleCopy(`${i.descripcion} | S/ ${i.precioConIgv}`, i.codigo)}
+                            onClick={() =>
+                              handleCopy(
+                                `${i.descripcion} | Und: ${i.unidad} | ${i.moneda === 'USD' ? '$' : 'S/'} ${i.precioSinIgv}`,
+                                i.codigo
+                              )
+                            }
                             className="px-2.5 py-1 text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold inline-flex items-center gap-1"
                           >
                             {copiedCode === i.codigo ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                            {copiedCode === i.codigo ? 'Copiado' : 'Copiar'}
+                            {copiedCode === i.codigo ? 'Listo' : 'Copiar'}
                           </button>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          ) : (
+            /* VISTA 2: ÍNDICE DE LA A A LA Z */
+            <div className="space-y-4">
+              {/* Barra de Letras A-Z */}
+              <div className="bg-white p-2.5 rounded-2xl border border-slate-200 flex flex-wrap gap-1 items-center shadow-xs">
+                <button
+                  onClick={() => setSelectedLetra('ALL')}
+                  className={`px-3 py-1 rounded-lg text-xs font-extrabold transition-all ${
+                    selectedLetra === 'ALL'
+                      ? 'bg-sky-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  TODOS
+                </button>
+                {letrasDisponibles.map((l) => (
+                  <button
+                    key={l}
+                    onClick={() => setSelectedLetra(l)}
+                    className={`w-7 h-7 rounded-lg text-xs font-black transition-all ${
+                      selectedLetra === l
+                        ? 'bg-sky-600 text-white shadow-xs'
+                        : 'text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+
+              {/* Columnas de Directorio */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Object.keys(gruposPorLetra).sort().map((letra) => (
+                  <div
+                    key={letra}
+                    className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden"
+                  >
+                    <div className="bg-slate-900 text-white px-4 py-2.5 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-sky-500 flex items-center justify-center font-black text-xs text-white">
+                          {letra}
+                        </span>
+                        <span className="font-extrabold text-xs tracking-wider">GRUPO {letra}</span>
+                      </div>
+                      <span className="text-[10px] text-slate-300 font-mono">
+                        {gruposPorLetra[letra].length} grupos
+                      </span>
+                    </div>
+
+                    <div className="divide-y divide-slate-100 max-h-96 overflow-y-auto">
+                      {gruposPorLetra[letra].map((g, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => {
+                            setSearch(g.grupo);
+                            setVistaInsumos('tabla');
+                          }}
+                          className="p-3 hover:bg-sky-50/60 cursor-pointer transition-colors flex items-center justify-between gap-2 group"
+                        >
+                          <div>
+                            <span className="text-xs font-bold text-slate-800 group-hover:text-sky-700 block">
+                              {g.grupo}
+                            </span>
+                            {g.descripcion && (
+                              <span className="text-[11px] text-slate-500 block line-clamp-1">
+                                {g.descripcion}
+                              </span>
+                            )}
+                          </div>
+                          <span className="shrink-0 px-2 py-1 bg-slate-100 group-hover:bg-sky-100 text-slate-700 group-hover:text-sky-800 text-[10px] font-mono font-bold rounded-lg border border-slate-200">
+                            Pág. {g.pagina}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -443,7 +515,7 @@ export default function CostosDirectosPage() {
       {/* CONTENIDO TAB 1: VALOR M2 DE CONSTRUCCIÓN & PRESUPUESTO */}
       {activeTab === 'valorm2' && (
         <div className="space-y-6">
-          {/* TABLA PRINCIPAL: 29 GRUPOS DE PARTIDA */}
+          {/* TABLA PRINCIPAL: 35 GRUPOS DE PARTIDA OFICIALES */}
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
             <div className="p-4 bg-slate-900 text-white flex items-center justify-between">
               <div>
@@ -451,11 +523,11 @@ export default function CostosDirectosPage() {
                   1. VALOR m² DE CONSTRUCCIÓN — TIPOLOGÍA A: VIVIENDA UNIFAMILIAR ECONÓMICA
                 </h3>
                 <p className="text-xs text-indigo-200">
-                  Total Modelo: S/. 1,654.37 / m² ($ 449.56 / m²)
+                  Total Modelo: S/. 1,654.37 / m² ($ 449.19 / m²) • Costo Directo Total: S/ 330,873.03 (200 m² techados)
                 </p>
               </div>
               <span className="text-xs bg-indigo-500/30 text-indigo-200 font-mono px-3 py-1 rounded-lg border border-indigo-400/20 font-bold">
-                29 GRUPOS
+                {VALOR_M2_GRUPOS.length} GRUPOS OFICIALES
               </span>
             </div>
 
@@ -504,7 +576,7 @@ export default function CostosDirectosPage() {
                 <tfoot>
                   <tr className="bg-slate-900 text-white font-bold text-xs">
                     <td colSpan={2} className="py-3.5 px-4 text-right tracking-wider uppercase">
-                      TOTAL GENERAL VALOR m²
+                      TOTAL GENERAL COSTO DIRECTO
                     </td>
                     <td className="py-3.5 px-4 text-right font-mono text-indigo-300 text-sm">
                       S/ {totalParcialSoles.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -522,51 +594,64 @@ export default function CostosDirectosPage() {
             </div>
           </div>
 
-          {/* TABLA SECUNDARIA: DESGLOSE PRESUPUESTAL DE PARTIDAS */}
+          {/* TABLA 2: PRESUPUESTO DETALLADO POR METRADOS (PÁGINAS 1.2 Y 1.3) */}
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
             <div className="p-4 bg-slate-800 text-white flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold tracking-wide">
-                  2. PRESUPUESTO DESGLOSADO DE PARTIDAS (VALOR m² DE CONSTRUCCIÓN)
+                  PRESUPUESTO DESGLOSADO POR METRADOS Y PRECIOS UNITARIOS
                 </h3>
                 <p className="text-xs text-slate-300">
-                  Desagregado por Metrado, Precio Unitario (S/) y Parcial (S/)
+                  Desglose de partidas 01 a 20 con metrado, P.U. y subtotal parcial
                 </p>
               </div>
+              <span className="text-xs bg-slate-700 font-mono px-3 py-1 rounded-lg">
+                {filteredPartidasPresupuesto.length} Ítems Desglosados
+              </span>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
-                    <th className="py-3 px-4 w-24 text-center">ITEM</th>
+                    <th className="py-3 px-4 w-20 text-center">ITEM</th>
                     <th className="py-3 px-4">PARTIDA</th>
                     <th className="py-3 px-4 text-center w-16">UND</th>
                     <th className="py-3 px-4 text-right w-24">METRADO</th>
                     <th className="py-3 px-4 text-right w-28">PRECIO (S/)</th>
-                    <th className="py-3 px-4 text-right w-28">PARCIAL (S/)</th>
+                    <th className="py-3 px-4 text-right w-32">PARCIAL (S/)</th>
+                    <th className="py-3 px-4 text-center w-24">ACCIÓN</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium">
                   {filteredPartidasPresupuesto.map((p) => (
-                    <tr key={p.item} className="hover:bg-slate-50 transition-colors">
-                      <td className="py-2.5 px-4 text-center font-mono font-bold text-slate-600 bg-slate-50">
+                    <tr key={p.item} className="hover:bg-indigo-50/40 transition-colors">
+                      <td className="py-2.5 px-4 text-center font-mono font-bold text-slate-600 bg-slate-50/50">
                         {p.item}
                       </td>
-                      <td className="py-2.5 px-4 text-slate-900 font-medium">
+                      <td className="py-2.5 px-4 font-bold text-slate-800">
                         {p.partida}
                       </td>
-                      <td className="py-2.5 px-4 text-center font-mono text-slate-500 font-bold">
+                      <td className="py-2.5 px-4 text-center font-mono text-slate-500">
                         {p.unidad}
                       </td>
                       <td className="py-2.5 px-4 text-right font-mono text-slate-700">
                         {p.metrado.toFixed(2)}
                       </td>
-                      <td className="py-2.5 px-4 text-right font-mono text-slate-800">
+                      <td className="py-2.5 px-4 text-right font-mono font-bold text-indigo-700 bg-indigo-50/20">
                         S/ {p.precioUnitario.toFixed(2)}
                       </td>
-                      <td className="py-2.5 px-4 text-right font-mono font-bold text-indigo-700 bg-indigo-50/20">
-                        S/ {p.parcial.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      <td className="py-2.5 px-4 text-right font-mono font-black text-slate-900">
+                        S/ {p.parcial.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="py-2.5 px-4 text-center">
+                        <button
+                          onClick={() => handleCopy(`${p.partida} | Metrado: ${p.metrado} ${p.unidad} | S/ ${p.precioUnitario}`, p.item)}
+                          className="px-2 py-1 text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold inline-flex items-center gap-1"
+                        >
+                          {copiedCode === p.item ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                          {copiedCode === p.item ? 'Listo' : 'Copiar'}
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -586,11 +671,11 @@ export default function CostosDirectosPage() {
                 PRECIOS UNITARIOS DE PARTIDAS — OBRAS DE EDIFICACIÓN (OE) Y HABILITACIÓN URBANA (HU)
               </h3>
               <p className="text-xs text-indigo-200">
-                Costos unitarios directos normalizados por unidad de medida
+                Desglose oficial de Mano de Obra (M.O.), Materiales (MAT.) y Equipos (EQU.) por unidad de medida
               </p>
             </div>
             <span className="text-xs bg-indigo-500/30 text-indigo-200 font-mono px-3 py-1 rounded-lg border border-indigo-400/20 font-bold">
-              {filteredPartidas.length} PARTIDAS
+              {filteredPartidasOEHU.length} PARTIDAS DISPONIBLES
             </span>
           </div>
 
@@ -598,41 +683,51 @@ export default function CostosDirectosPage() {
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
-                  <th className="py-3 px-4 w-24 text-center">CÓDIGO</th>
+                  <th className="py-3 px-4 w-28 text-center">CÓDIGO</th>
                   <th className="py-3 px-4">DESCRIPCIÓN DE LA PARTIDA</th>
-                  <th className="py-3 px-4 text-center w-20">ESP.</th>
-                  <th className="py-3 px-4 text-center w-16">UND</th>
-                  <th className="py-3 px-4 text-right w-28">P. UNITARIO (S/)</th>
-                  <th className="py-3 px-4 text-center w-36">ACCIONES</th>
+                  <th className="py-3 px-4 w-36">SUBCATEGORÍA</th>
+                  <th className="py-3 px-4 text-center w-14">UND</th>
+                  <th className="py-3 px-4 text-right w-20">M.O. (S/)</th>
+                  <th className="py-3 px-4 text-right w-20">MAT. (S/)</th>
+                  <th className="py-3 px-4 text-right w-20">EQU. (S/)</th>
+                  <th className="py-3 px-4 text-right w-28">P.U. TOTAL (S/)</th>
+                  <th className="py-3 px-4 text-center w-24">ACCIÓN</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
-                {filteredPartidas.map((p) => (
-                  <tr key={p.item} className="hover:bg-indigo-50/40 transition-colors">
-                    <td className="py-2.5 px-4 text-center font-mono font-bold text-slate-600 bg-slate-50">
-                      {p.item}
+                {filteredPartidasOEHU.map((p) => (
+                  <tr key={p.codigo} className="hover:bg-indigo-50/40 transition-colors">
+                    <td className="py-2.5 px-4 text-center font-mono font-bold text-indigo-700 bg-slate-50">
+                      {p.codigo}
                     </td>
                     <td className="py-2.5 px-4 text-slate-900 font-bold">
                       {p.partida}
                     </td>
-                    <td className="py-2.5 px-4 text-center">
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-slate-100 text-slate-700">
-                        {p.especialidad}
-                      </span>
+                    <td className="py-2.5 px-4 text-slate-500 text-[11px]">
+                      {p.subcategoria}
                     </td>
                     <td className="py-2.5 px-4 text-center font-mono font-bold text-slate-500">
                       {p.unidad}
                     </td>
-                    <td className="py-2.5 px-4 text-right font-mono font-extrabold text-indigo-700 bg-indigo-50/30">
+                    <td className="py-2.5 px-4 text-right font-mono text-slate-600">
+                      {p.manoDeObra > 0 ? p.manoDeObra.toFixed(2) : '-'}
+                    </td>
+                    <td className="py-2.5 px-4 text-right font-mono text-slate-600">
+                      {p.materiales > 0 ? p.materiales.toFixed(2) : '-'}
+                    </td>
+                    <td className="py-2.5 px-4 text-right font-mono text-slate-600">
+                      {p.equipos > 0 ? p.equipos.toFixed(2) : '-'}
+                    </td>
+                    <td className="py-2.5 px-4 text-right font-mono font-black text-indigo-700 bg-indigo-50/30">
                       S/ {p.precioUnitario.toFixed(2)}
                     </td>
                     <td className="py-2.5 px-4 text-center">
                       <button
-                        onClick={() => handleCopy(`${p.partida} | Und: ${p.unidad} | S/ ${p.precioUnitario}`, p.item)}
+                        onClick={() => handleCopy(`${p.partida} | Und: ${p.unidad} | S/ ${p.precioUnitario}`, p.codigo)}
                         className="px-2.5 py-1 text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold inline-flex items-center gap-1"
                       >
-                        {copiedCode === p.item ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                        {copiedCode === p.item ? 'Copiado' : 'Copiar'}
+                        {copiedCode === p.codigo ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                        {copiedCode === p.codigo ? 'Listo' : 'Copiar'}
                       </button>
                     </td>
                   </tr>
@@ -678,106 +773,126 @@ export default function CostosDirectosPage() {
                     <h4 className="text-sm font-bold text-white mt-1">{apu.descripcion}</h4>
                   </div>
                   <div className="text-right">
-                    <div className="text-[11px] text-slate-400">
-                      Rendimiento: <strong className="text-slate-200">{apu.rendimiento}</strong>
-                    </div>
-                    <div className="text-base font-black text-indigo-400 font-mono">
-                      Costo Unitario: S/ {apu.costoUnitarioTotal.toFixed(2)} / {apu.unidad}
-                    </div>
+                    <span className="text-[10px] text-slate-400 block uppercase">Costo Unitario Total</span>
+                    <span className="text-lg font-mono font-black text-emerald-400">
+                      S/ {apu.costoUnitarioTotal.toFixed(2)} / {apu.unidad}
+                    </span>
+                    <span className="text-[10px] text-indigo-200 block font-mono">
+                      Rend: {apu.rendimiento}
+                    </span>
                   </div>
                 </div>
 
-                <div className="p-4 space-y-4 text-xs">
+                {/* Tablas Desglosadas */}
+                <div className="p-4 space-y-4">
                   {/* Mano de Obra */}
-                  <div>
-                    <h5 className="font-bold text-slate-800 mb-1.5 flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-indigo-900">
-                      <HardHat className="w-3.5 h-3.5 text-indigo-600" /> Mano de Obra
-                    </h5>
-                    <table className="w-full text-left border-collapse bg-slate-50 rounded-xl overflow-hidden">
-                      <thead>
-                        <tr className="bg-slate-100 text-slate-600 font-bold border-b border-slate-200 text-[11px]">
-                          <th className="py-2 px-3">Recurso</th>
-                          <th className="py-2 px-3 text-center">Cuadrilla</th>
-                          <th className="py-2 px-3 text-center">Und</th>
-                          <th className="py-2 px-3 text-right">Cantidad</th>
-                          <th className="py-2 px-3 text-right">Precio S/</th>
-                          <th className="py-2 px-3 text-right">Parcial S/</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {apu.manoDeObra.map((mo, idx) => (
-                          <tr key={idx}>
-                            <td className="py-1.5 px-3 font-medium text-slate-800">{mo.recurso}</td>
-                            <td className="py-1.5 px-3 text-center font-mono">{mo.cuadrilla.toFixed(2)}</td>
-                            <td className="py-1.5 px-3 text-center font-mono text-slate-500">{mo.unidad}</td>
-                            <td className="py-1.5 px-3 text-right font-mono">{mo.cantidad.toFixed(4)}</td>
-                            <td className="py-1.5 px-3 text-right font-mono">S/ {mo.precio.toFixed(2)}</td>
-                            <td className="py-1.5 px-3 text-right font-mono font-bold text-slate-900">S/ {mo.parcial.toFixed(2)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  {apu.manoDeObra.length > 0 && (
+                    <div>
+                      <h5 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                        <HardHat className="w-3.5 h-3.5 text-amber-600" /> Mano de Obra
+                      </h5>
+                      <div className="overflow-x-auto border border-slate-100 rounded-xl">
+                        <table className="w-full text-left text-xs">
+                          <thead className="bg-slate-50 text-slate-500 font-bold text-[10px]">
+                            <tr>
+                              <th className="py-2 px-3">Recurso</th>
+                              <th className="py-2 px-3 text-center">Cuadrilla</th>
+                              <th className="py-2 px-3 text-center">Und</th>
+                              <th className="py-2 px-3 text-right">Cantidad</th>
+                              <th className="py-2 px-3 text-right">Precio S/</th>
+                              <th className="py-2 px-3 text-right">Parcial S/</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 font-medium">
+                            {apu.manoDeObra.map((m, idx) => (
+                              <tr key={idx} className="hover:bg-slate-50/50">
+                                <td className="py-2 px-3 font-bold text-slate-800">{m.recurso}</td>
+                                <td className="py-2 px-3 text-center font-mono">{m.cuadrilla.toFixed(2)}</td>
+                                <td className="py-2 px-3 text-center font-mono">{m.unidad}</td>
+                                <td className="py-2 px-3 text-right font-mono">{m.cantidad.toFixed(4)}</td>
+                                <td className="py-2 px-3 text-right font-mono">S/ {m.precio.toFixed(2)}</td>
+                                <td className="py-2 px-3 text-right font-mono font-bold text-slate-900">
+                                  S/ {m.parcial.toFixed(2)}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Materiales */}
-                  <div>
-                    <h5 className="font-bold text-slate-800 mb-1.5 flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-emerald-900">
-                      <Layers className="w-3.5 h-3.5 text-emerald-600" /> Materiales
-                    </h5>
-                    <table className="w-full text-left border-collapse bg-slate-50 rounded-xl overflow-hidden">
-                      <thead>
-                        <tr className="bg-slate-100 text-slate-600 font-bold border-b border-slate-200 text-[11px]">
-                          <th className="py-2 px-3">Material / Insumo</th>
-                          <th className="py-2 px-3 text-center">Und</th>
-                          <th className="py-2 px-3 text-right">Cantidad</th>
-                          <th className="py-2 px-3 text-right">Precio S/</th>
-                          <th className="py-2 px-3 text-right">Parcial S/</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {apu.materiales.map((mat, idx) => (
-                          <tr key={idx}>
-                            <td className="py-1.5 px-3 font-medium text-slate-800">{mat.recurso}</td>
-                            <td className="py-1.5 px-3 text-center font-mono text-slate-500">{mat.unidad}</td>
-                            <td className="py-1.5 px-3 text-right font-mono">{mat.cantidad.toFixed(3)}</td>
-                            <td className="py-1.5 px-3 text-right font-mono">S/ {mat.precio.toFixed(2)}</td>
-                            <td className="py-1.5 px-3 text-right font-mono font-bold text-slate-900">S/ {mat.parcial.toFixed(2)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  {apu.materiales.length > 0 && (
+                    <div>
+                      <h5 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                        <Hammer className="w-3.5 h-3.5 text-blue-600" /> Materiales
+                      </h5>
+                      <div className="overflow-x-auto border border-slate-100 rounded-xl">
+                        <table className="w-full text-left text-xs">
+                          <thead className="bg-slate-50 text-slate-500 font-bold text-[10px]">
+                            <tr>
+                              <th className="py-2 px-3">Recurso</th>
+                              <th className="py-2 px-3 text-center">Und</th>
+                              <th className="py-2 px-3 text-right">Cantidad</th>
+                              <th className="py-2 px-3 text-right">Precio S/</th>
+                              <th className="py-2 px-3 text-right">Parcial S/</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 font-medium">
+                            {apu.materiales.map((mat, idx) => (
+                              <tr key={idx} className="hover:bg-slate-50/50">
+                                <td className="py-2 px-3 font-bold text-slate-800">{mat.recurso}</td>
+                                <td className="py-2 px-3 text-center font-mono">{mat.unidad}</td>
+                                <td className="py-2 px-3 text-right font-mono">{mat.cantidad.toFixed(4)}</td>
+                                <td className="py-2 px-3 text-right font-mono">S/ {mat.precio.toFixed(2)}</td>
+                                <td className="py-2 px-3 text-right font-mono font-bold text-slate-900">
+                                  S/ {mat.parcial.toFixed(2)}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Equipos */}
-                  <div>
-                    <h5 className="font-bold text-slate-800 mb-1.5 flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-amber-900">
-                      <Wrench className="w-3.5 h-3.5 text-amber-600" /> Equipos y Herramientas
-                    </h5>
-                    <table className="w-full text-left border-collapse bg-slate-50 rounded-xl overflow-hidden">
-                      <thead>
-                        <tr className="bg-slate-100 text-slate-600 font-bold border-b border-slate-200 text-[11px]">
-                          <th className="py-2 px-3">Equipo / Maquinaria</th>
-                          <th className="py-2 px-3 text-center">Cuadrilla</th>
-                          <th className="py-2 px-3 text-center">Und</th>
-                          <th className="py-2 px-3 text-right">Cantidad</th>
-                          <th className="py-2 px-3 text-right">Precio S/</th>
-                          <th className="py-2 px-3 text-right">Parcial S/</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {apu.equipos.map((eq, idx) => (
-                          <tr key={idx}>
-                            <td className="py-1.5 px-3 font-medium text-slate-800">{eq.recurso}</td>
-                            <td className="py-1.5 px-3 text-center font-mono">{eq.cuadrilla.toFixed(2)}</td>
-                            <td className="py-1.5 px-3 text-center font-mono text-slate-500">{eq.unidad}</td>
-                            <td className="py-1.5 px-3 text-right font-mono">{eq.cantidad.toFixed(4)}</td>
-                            <td className="py-1.5 px-3 text-right font-mono">S/ {eq.precio.toFixed(2)}</td>
-                            <td className="py-1.5 px-3 text-right font-mono font-bold text-slate-900">S/ {eq.parcial.toFixed(2)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  {apu.equipos.length > 0 && (
+                    <div>
+                      <h5 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                        <Wrench className="w-3.5 h-3.5 text-indigo-600" /> Equipos y Herramientas
+                      </h5>
+                      <div className="overflow-x-auto border border-slate-100 rounded-xl">
+                        <table className="w-full text-left text-xs">
+                          <thead className="bg-slate-50 text-slate-500 font-bold text-[10px]">
+                            <tr>
+                              <th className="py-2 px-3">Recurso</th>
+                              <th className="py-2 px-3 text-center">Cuadrilla</th>
+                              <th className="py-2 px-3 text-center">Und</th>
+                              <th className="py-2 px-3 text-right">Cantidad</th>
+                              <th className="py-2 px-3 text-right">Precio S/</th>
+                              <th className="py-2 px-3 text-right">Parcial S/</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 font-medium">
+                            {apu.equipos.map((eq, idx) => (
+                              <tr key={idx} className="hover:bg-slate-50/50">
+                                <td className="py-2 px-3 font-bold text-slate-800">{eq.recurso}</td>
+                                <td className="py-2 px-3 text-center font-mono">{eq.cuadrilla.toFixed(2)}</td>
+                                <td className="py-2 px-3 text-center font-mono">{eq.unidad}</td>
+                                <td className="py-2 px-3 text-right font-mono">{eq.cantidad.toFixed(4)}</td>
+                                <td className="py-2 px-3 text-right font-mono">S/ {eq.precio.toFixed(2)}</td>
+                                <td className="py-2 px-3 text-right font-mono font-bold text-slate-900">
+                                  S/ {eq.parcial.toFixed(2)}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -785,92 +900,65 @@ export default function CostosDirectosPage() {
         </div>
       )}
 
-      {/* MODAL DETALLE DE GRUPO SELECCIONADO */}
-      {selectedGrupoModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-5 bg-sky-600 text-white flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white font-black text-lg">
-                  {selectedGrupoModal.letra}
-                </div>
-                <div>
-                  <h3 className="text-base font-black uppercase tracking-wide">
-                    {selectedGrupoModal.grupo}
-                  </h3>
-                  <p className="text-xs text-sky-100 font-mono font-bold">
-                    Catálogo CAPECO — Página {selectedGrupoModal.pagina}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setSelectedGrupoModal(null)}
-                className="text-white/80 hover:text-white p-1.5 rounded-xl hover:bg-sky-700"
-              >
-                ✕
-              </button>
+      {/* CONTENIDO TAB 5: DIRECTORIO DE PROVEEDORES (PÁGINAS 3.3 Y 3.4) */}
+      {activeTab === 'proveedores' && (
+        <div className="space-y-6">
+          <div className="p-4 bg-slate-900 text-white rounded-2xl flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-bold">DIRECTORIO DE PROVEEDORES & EMPRESAS COLABORADORAS</h3>
+              <p className="text-xs text-slate-300">
+                Páginas 3.3 y 3.4 del Suplemento Técnico: datos de contacto, teléfonos y enlaces
+              </p>
             </div>
+            <span className="text-xs bg-slate-700 px-3 py-1 rounded-lg font-bold font-mono">
+              {filteredProveedores.length} Empresas
+            </span>
+          </div>
 
-            <div className="p-6 space-y-4 text-xs">
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">
-                  Descripción del Grupo / Partidas Incluidas
-                </span>
-                <p className="text-sm font-semibold text-slate-800">
-                  {selectedGrupoModal.descripcion}
-                </p>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredProveedores.map((p, idx) => (
+              <div key={idx} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <h4 className="font-extrabold text-sm text-slate-900">{p.nombre}</h4>
+                  <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 text-[10px] font-mono font-bold rounded">
+                    Pág. {p.pagina}
+                  </span>
+                </div>
 
-              <div>
-                <h4 className="font-bold text-slate-700 mb-2">Insumos Registrados en este Grupo:</h4>
-                <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {INSUMOS_PRECIOS.filter(
-                    (i) => i.grupo === selectedGrupoModal.grupo || i.pagina === selectedGrupoModal.pagina
-                  ).length > 0 ? (
-                    INSUMOS_PRECIOS.filter(
-                      (i) => i.grupo === selectedGrupoModal.grupo || i.pagina === selectedGrupoModal.pagina
-                    ).map((ins) => (
-                      <div
-                        key={ins.codigo}
-                        className="p-3 bg-sky-50/50 rounded-xl border border-sky-100 flex items-center justify-between gap-3"
-                      >
-                        <div>
-                          <div className="font-bold text-slate-900">{ins.descripcion}</div>
-                          <div className="text-[11px] text-slate-500">
-                            Und: {ins.unidad} | Prov: {ins.proveedor || ins.marca || 'Estándar'}
-                          </div>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <div className="text-[10px] text-slate-400">Precio con IGV</div>
-                          <div className="text-sm font-black text-sky-700 font-mono">
-                            S/ {ins.precioConIgv.toFixed(2)}
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="p-4 bg-slate-50 text-slate-500 text-center rounded-xl">
-                      Grupo referenciado en el catálogo (Pág. {selectedGrupoModal.pagina}). Puedes cotizarlo usando el botón en Cotizaciones.
+                <div className="space-y-1.5 text-xs text-slate-600">
+                  {p.direccion && (
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span>{p.direccion}</span>
+                    </div>
+                  )}
+                  {p.telefono && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span>{p.telefono}</span>
+                    </div>
+                  )}
+                  {p.celular && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                      <span>Cel. {p.celular}</span>
+                    </div>
+                  )}
+                  {p.email && (
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                      <span className="truncate">{p.email}</span>
+                    </div>
+                  )}
+                  {p.web && (
+                    <div className="flex items-center gap-2">
+                      <ExternalLink className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                      <span className="text-sky-600 font-semibold truncate">{p.web}</span>
                     </div>
                   )}
                 </div>
               </div>
-
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                <Link
-                  href="/cotizaciones/nueva"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center gap-2"
-                >
-                  <Plus className="w-4 h-4" /> Cotizar este Grupo
-                </Link>
-                <button
-                  onClick={() => setSelectedGrupoModal(null)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold"
-                >
-                  Cerrar
-                </button>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       )}

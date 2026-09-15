@@ -21,7 +21,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import { numeroALetrasSoles } from '@/lib/number-to-letters';
-import { PARTIDAS_PRESUPUESTO, INSUMOS_PRECIOS } from '@/lib/costos-directos-data';
+import { PARTIDAS_PRESUPUESTO, PARTIDAS_OE_HU, INSUMOS_PRECIOS } from '@/lib/costos-directos-data';
 
 interface ItemRow {
   id: string;
@@ -731,6 +731,62 @@ export default function NuevaCotizacionPage() {
                         })
                       }
                       className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1 shadow-xs transition-all group-hover:scale-105"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      {targetRowIdForCostos ? 'Usar en Fila' : 'Agregar'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {/* Partidas OE / HU matches */}
+              {PARTIDAS_OE_HU.filter((p) => {
+                const matchesFiltro =
+                  filtroCostos === 'ALL' ||
+                  filtroCostos === 'OE' ||
+                  filtroCostos === p.especialidad;
+                const matchesText =
+                  !searchCostos ||
+                  p.codigo.toLowerCase().includes(searchCostos.toLowerCase()) ||
+                  p.partida.toLowerCase().includes(searchCostos.toLowerCase()) ||
+                  p.subcategoria.toLowerCase().includes(searchCostos.toLowerCase());
+                return matchesFiltro && matchesText;
+              }).map((p) => (
+                <div
+                  key={`oehu-${p.codigo}`}
+                  className="py-2.5 px-3 rounded-xl hover:bg-blue-50/50 transition-colors flex items-center justify-between gap-4 group"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[10px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">
+                        {p.codigo}
+                      </span>
+                      <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                        {p.subcategoria}
+                      </span>
+                      <span className="text-xs font-bold text-slate-900">{p.partida}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 shrink-0">
+                    <div className="text-right">
+                      <div className="text-[10px] text-slate-400">Und: {p.unidad}</div>
+                      <div className="text-sm font-black text-blue-700 font-mono">
+                        S/ {p.precioUnitario.toFixed(2)}
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleSelectCostosItem({
+                          codigo: p.codigo,
+                          descripcion: p.partida,
+                          unidad: p.unidad,
+                          precioUnitario: p.precioUnitario,
+                        })
+                      }
+                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-1 shadow-xs transition-all group-hover:scale-105"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       {targetRowIdForCostos ? 'Usar en Fila' : 'Agregar'}
