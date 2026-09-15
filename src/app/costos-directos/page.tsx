@@ -175,6 +175,7 @@ export default function CostosDirectosPage() {
   const [vistaInsumos, setVistaInsumos] = useState<'tabla' | 'indice'>('tabla');
   const [selectedGrupoModal, setSelectedGrupoModal] = useState<GrupoIndiceInsumo | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [copyToast, setCopyToast] = useState<string | null>(null);
 
   // Paginación para alto rendimiento con más de 3,000 ítems (20 por página)
   const [pageInsumos, setPageInsumos] = useState(1);
@@ -204,10 +205,49 @@ export default function CostosDirectosPage() {
     setPageProveedores(1);
   }, [search]);
 
-  const handleCopy = (text: string, code: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedCode(code);
-    setTimeout(() => setCopiedCode(null), 2000);
+  const handleCopy = async (text: string, code: string) => {
+    let success = false;
+
+    // 1. Intento con Clipboard API (disponible en entornos seguros HTTPS / localhost)
+    if (typeof navigator !== 'undefined' && navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text);
+        success = true;
+      } catch (err) {
+        console.warn('navigator.clipboard falló, intentando con fallback textarea:', err);
+      }
+    }
+
+    // 2. Fallback universal con textarea (funciona siempre en HTTP, IPs y navegadores móviles)
+    if (!success && typeof document !== 'undefined') {
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        textarea.style.top = '-9999px';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        textarea.setSelectionRange(0, textarea.value.length);
+        success = document.execCommand('copy');
+        document.body.removeChild(textarea);
+      } catch (err) {
+        console.error('Fallback execCommand falló:', err);
+      }
+    }
+
+    if (success) {
+      setCopiedCode(code);
+      const preview = text.length > 45 ? text.substring(0, 45) + '...' : text;
+      setCopyToast(`¡Copiado al portapapeles!: "${preview}"`);
+      setTimeout(() => setCopiedCode(null), 2000);
+      setTimeout(() => setCopyToast(null), 3000);
+    } else {
+      window.prompt('Copia este valor con Ctrl + C:', text);
+    }
   };
 
   // Letras disponibles en el índice
@@ -600,10 +640,15 @@ export default function CostosDirectosPage() {
                                 i.codigo
                               )
                             }
-                            className="px-2.5 py-1 text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold inline-flex items-center gap-1"
+                            className={`px-2.5 py-1 text-[11px] rounded-lg font-bold inline-flex items-center gap-1 transition-all cursor-pointer ${
+                              copiedCode === i.codigo
+                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs'
+                                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                            }`}
+                            title="Copiar datos del insumo"
                           >
-                            {copiedCode === i.codigo ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                            {copiedCode === i.codigo ? 'Listo' : 'Copiar'}
+                            {copiedCode === i.codigo ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                            {copiedCode === i.codigo ? '¡Copiado!' : 'Copiar'}
                           </button>
                         </td>
                       </tr>
@@ -758,10 +803,15 @@ export default function CostosDirectosPage() {
                       <td className="py-2.5 px-4 text-center">
                         <button
                           onClick={() => handleCopy(`Item ${g.item} - ${g.grupo} (S/ ${g.valorM2Soles}/m2)`, g.item)}
-                          className="px-2.5 py-1 text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold inline-flex items-center gap-1"
+                          className={`px-2.5 py-1 text-[11px] rounded-lg font-bold inline-flex items-center gap-1 transition-all cursor-pointer ${
+                            copiedCode === g.item
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs'
+                              : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                          }`}
+                          title="Copiar grupo y valor por m2"
                         >
-                          {copiedCode === g.item ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                          {copiedCode === g.item ? 'Copiado' : 'Copiar'}
+                          {copiedCode === g.item ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                          {copiedCode === g.item ? '¡Copiado!' : 'Copiar'}
                         </button>
                       </td>
                     </tr>
@@ -852,10 +902,15 @@ export default function CostosDirectosPage() {
                       <td className="py-2.5 px-4 text-center">
                         <button
                           onClick={() => handleCopy(`${p.partida} | Metrado: ${p.metrado} ${p.unidad} | S/ ${p.precioUnitario}`, p.item)}
-                          className="px-2 py-1 text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold inline-flex items-center gap-1"
+                          className={`px-2.5 py-1 text-[11px] rounded-lg font-bold inline-flex items-center gap-1 transition-all cursor-pointer ${
+                            copiedCode === p.item
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs'
+                              : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                          }`}
+                          title="Copiar partida y precio unitario"
                         >
-                          {copiedCode === p.item ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                          {copiedCode === p.item ? 'Listo' : 'Copiar'}
+                          {copiedCode === p.item ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                          {copiedCode === p.item ? '¡Copiado!' : 'Copiar'}
                         </button>
                       </td>
                     </tr>
@@ -940,10 +995,15 @@ export default function CostosDirectosPage() {
                     <td className="py-2.5 px-4 text-center">
                       <button
                         onClick={() => handleCopy(`${p.partida} | Und: ${p.unidad} | S/ ${p.precioUnitario}`, p.codigo)}
-                        className="px-2.5 py-1 text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold inline-flex items-center gap-1"
+                        className={`px-2.5 py-1 text-[11px] rounded-lg font-bold inline-flex items-center gap-1 transition-all cursor-pointer ${
+                          copiedCode === p.codigo
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs'
+                            : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                        }`}
+                        title="Copiar código y precio unitario"
                       >
-                        {copiedCode === p.codigo ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                        {copiedCode === p.codigo ? 'Listo' : 'Copiar'}
+                        {copiedCode === p.codigo ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copiedCode === p.codigo ? '¡Copiado!' : 'Copiar'}
                       </button>
                     </td>
                   </tr>
@@ -1198,6 +1258,16 @@ export default function CostosDirectosPage() {
             onPageChange={setPageProveedores}
             accentColor="indigo"
           />
+        </div>
+      )}
+
+      {/* Toast Flotante de Confirmación de Copiado */}
+      {copyToast && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3 text-xs font-bold animate-in fade-in slide-in-from-bottom-3 duration-200">
+          <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0">
+            <Check className="w-3.5 h-3.5 text-emerald-400" />
+          </div>
+          <span className="text-slate-100">{copyToast}</span>
         </div>
       )}
     </div>
