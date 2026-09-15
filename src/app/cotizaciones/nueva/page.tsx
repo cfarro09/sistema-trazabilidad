@@ -77,7 +77,7 @@ export default function NuevaCotizacionPage() {
       id: '2',
       item: '1.01',
       descripcion: '',
-      unidad: 'Global',
+      unidad: 'm2',
       cantidad: 1,
       precioUnitario: 0,
       precioParcial: 0,
@@ -112,11 +112,61 @@ export default function NuevaCotizacionPage() {
     );
   };
 
+  // Calcula el siguiente correlativo para partidas (ej. 1.01, 1.02, 2.01, etc.)
+  const getNextItemCorrelativo = (currentItems: ItemRow[]) => {
+    let groupIndex = 1;
+    let itemIndexInGroup = 0;
+    for (const it of currentItems) {
+      if (it.esTitulo) {
+        const parsed = parseInt(it.item);
+        groupIndex = !isNaN(parsed) && parsed > 0 ? parsed : groupIndex + 1;
+        itemIndexInGroup = 0;
+      } else {
+        itemIndexInGroup++;
+      }
+    }
+    return `${groupIndex}.${(itemIndexInGroup + 1).toString().padStart(2, '0')}`;
+  };
+
+  // Calcula el siguiente número para títulos / grupos (1.00, 2.00, etc.)
+  const getNextTitleCorrelativo = (currentItems: ItemRow[]) => {
+    const titleCount = currentItems.filter((i) => i.esTitulo).length;
+    return `${titleCount + 1}.00`;
+  };
+
+  // Renumeración integral de correlativos (1.00, 1.01, 1.02... / 2.00, 2.01...)
+  const recalcularCorrelativos = (customList?: ItemRow[]) => {
+    const list = customList || items;
+    let currentTitleNum = 0;
+    let itemNumInGroup = 0;
+    const hasAnyTitle = list.some((i) => i.esTitulo);
+
+    const updated = list.map((row) => {
+      if (row.esTitulo) {
+        currentTitleNum++;
+        itemNumInGroup = 0;
+        return {
+          ...row,
+          item: `${currentTitleNum}.00`,
+        };
+      } else {
+        itemNumInGroup++;
+        const titlePrefix = hasAnyTitle ? (currentTitleNum > 0 ? currentTitleNum : 1) : 1;
+        return {
+          ...row,
+          item: `${titlePrefix}.${itemNumInGroup.toString().padStart(2, '0')}`,
+        };
+      }
+    });
+
+    setItems(updated);
+  };
+
   const addGroupTitle = () => {
     const newId = String(Date.now());
-    const nextNum = `${items.filter((i) => i.esTitulo).length + 1}.00`;
-    setItems([
-      ...items,
+    const nextNum = getNextTitleCorrelativo(items);
+    setItems((prev) => [
+      ...prev,
       {
         id: newId,
         item: nextNum,
@@ -132,13 +182,14 @@ export default function NuevaCotizacionPage() {
 
   const addItem = () => {
     const newId = String(Date.now());
-    setItems([
-      ...items,
+    const nextNum = getNextItemCorrelativo(items);
+    setItems((prev) => [
+      ...prev,
       {
         id: newId,
-        item: '',
+        item: nextNum,
         descripcion: '',
-        unidad: 'Global',
+        unidad: 'm2',
         cantidad: 1,
         precioUnitario: 0,
         precioParcial: 0,
@@ -158,22 +209,22 @@ export default function NuevaCotizacionPage() {
     precioUnitario: number;
   }) => {
     if (targetRowIdForCostos) {
-      // Update existing row
+      // Actualiza fila existente manteniendo SIEMPRE su número correlativo
       updateItem(targetRowIdForCostos, 'descripcion', item.descripcion);
-      updateItem(targetRowIdForCostos, 'unidad', item.unidad);
+      updateItem(targetRowIdForCostos, 'unidad', item.unidad || 'm2');
       updateItem(targetRowIdForCostos, 'precioUnitario', item.precioUnitario);
-      if (item.codigo) updateItem(targetRowIdForCostos, 'item', item.codigo);
+      // No sobreescribimos 'item' con el código de catálogo (01.01.01) para preservar el correlativo
     } else {
-      // Append new row
+      // Agrega nueva fila con el correlativo correspondiente
       const newId = String(Date.now());
-      const nextNum = `1.0${items.filter((i) => !i.esTitulo).length + 1}`;
+      const nextNum = getNextItemCorrelativo(items);
       setItems((prev) => [
         ...prev,
         {
           id: newId,
-          item: item.codigo || nextNum,
+          item: nextNum,
           descripcion: item.descripcion,
-          unidad: item.unidad,
+          unidad: item.unidad || 'm2',
           cantidad: 1,
           precioUnitario: item.precioUnitario,
           precioParcial: item.precioUnitario,
@@ -370,6 +421,14 @@ export default function NuevaCotizacionPage() {
             </button>
             <button
               type="button"
+              onClick={() => recalcularCorrelativos()}
+              title="Renumerar automáticamente los correlativos (1.00, 1.01, 1.02... / 2.00, 2.01...)"
+              className="px-3.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs"
+            >
+              <span>🔢</span> Renumerar Correlativo
+            </button>
+            <button
+              type="button"
               onClick={addGroupTitle}
               className="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold transition-colors shadow-2xs"
             >
@@ -389,9 +448,9 @@ export default function NuevaCotizacionPage() {
           <table className="w-full text-left text-xs border border-slate-200">
             <thead className="bg-slate-900 text-white font-bold uppercase text-[10px]">
               <tr>
-                <th className="p-2.5 w-16 text-center border-r border-slate-800">ITEM</th>
+                <th className="p-2.5 w-20 text-center border-r border-slate-800">ITEM</th>
                 <th className="p-2.5 border-r border-slate-800">DESCRIPCIÓN DE LA ACTIVIDAD / MATERIAL</th>
-                <th className="p-2.5 w-24 text-center border-r border-slate-800">UND</th>
+                <th className="p-2.5 w-28 text-center border-r border-slate-800">UND</th>
                 <th className="p-2.5 w-20 text-center border-r border-slate-800">CANT.</th>
                 <th className="p-2.5 w-28 text-right border-r border-slate-800">P. UNIT (S/)</th>
                 <th className="p-2.5 w-28 text-right border-r border-slate-800">P. PARCIAL (S/)</th>
@@ -408,7 +467,8 @@ export default function NuevaCotizacionPage() {
                           type="text"
                           value={row.item}
                           onChange={(e) => updateItem(row.id, 'item', e.target.value)}
-                          className="w-full text-center bg-transparent font-bold text-slate-900 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 rounded"
+                          title="Correlativo del Título (puedes editarlo)"
+                          className="w-full text-center bg-white/90 border border-slate-300 hover:border-slate-400 focus:border-blue-500 font-mono font-black text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 rounded-lg py-1 transition-all"
                         />
                       </td>
                       <td colSpan={5} className="p-2 border-r border-slate-200">
@@ -441,7 +501,8 @@ export default function NuevaCotizacionPage() {
                         value={row.item}
                         onChange={(e) => updateItem(row.id, 'item', e.target.value)}
                         placeholder="1.01"
-                        className="w-full text-center font-mono font-bold text-slate-900 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 rounded"
+                        title="Correlativo de la partida (ej. 1.01, 1.02... puedes editarlo)"
+                        className="w-full text-center font-mono font-bold text-xs text-slate-900 bg-slate-50 border border-slate-300 hover:border-slate-400 focus:border-blue-500 focus:bg-white rounded-lg py-1 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
                       />
                     </td>
                     <td className="p-2 border-r border-slate-200 relative">
@@ -464,13 +525,50 @@ export default function NuevaCotizacionPage() {
                         </button>
                       </div>
                     </td>
-                    <td className="p-2 border-r border-slate-200">
-                      <input
-                        type="text"
-                        value={row.unidad}
-                        onChange={(e) => updateItem(row.id, 'unidad', e.target.value)}
-                        className="w-full text-center text-slate-900 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 rounded font-bold"
-                      />
+                    <td className="p-2 border-r border-slate-200 w-28">
+                      <div className="relative flex items-center">
+                        <input
+                          type="text"
+                          list="lista-unidades-medida"
+                          value={row.unidad}
+                          onChange={(e) => updateItem(row.id, 'unidad', e.target.value)}
+                          placeholder="m2 / glb"
+                          title="Unidad de medida (m2, global, und, etc.) - Escribe o selecciona con la flecha"
+                          className="w-full pl-2 pr-6 py-1 text-center bg-slate-50 border border-slate-300 hover:border-slate-400 focus:border-blue-500 focus:bg-white rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                        />
+                        <select
+                          value=""
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              updateItem(row.id, 'unidad', e.target.value);
+                            }
+                          }}
+                          title="Seleccionar unidad (m2, global, und, etc.)"
+                          className="absolute right-1 w-5 h-6 text-slate-500 hover:text-blue-600 bg-transparent cursor-pointer focus:outline-none text-xs"
+                        >
+                          <option value="" disabled>▾</option>
+                          <option value="m2">m² (Metro cuadrado)</option>
+                          <option value="glb">glb (Global)</option>
+                          <option value="global">global (Global)</option>
+                          <option value="und">und (Unidad)</option>
+                          <option value="ml">ml (Metro lineal)</option>
+                          <option value="m3">m³ (Metro cúbico)</option>
+                          <option value="kg">kg (Kilogramo)</option>
+                          <option value="pza">pza (Pieza)</option>
+                          <option value="pto">pto (Punto)</option>
+                          <option value="est">est (Estimado)</option>
+                          <option value="servicio">servicio (Servicio)</option>
+                          <option value="mes">mes (Mes)</option>
+                          <option value="dia">día (Día)</option>
+                          <option value="jgo">jgo (Juego)</option>
+                          <option value="bolsa">bolsa (Bolsa)</option>
+                          <option value="ton">ton (Tonelada)</option>
+                          <option value="gal">gal (Galón)</option>
+                          <option value="lt">lt (Litro)</option>
+                          <option value="hh">hh (Hora hombre)</option>
+                          <option value="hm">hm (Hora máquina)</option>
+                        </select>
+                      </div>
                     </td>
                     <td className="p-2 border-r border-slate-200">
                       <input
@@ -518,6 +616,30 @@ export default function NuevaCotizacionPage() {
               })}
             </tbody>
           </table>
+
+          {/* Datalist para autocompletar unidades */}
+          <datalist id="lista-unidades-medida">
+            <option value="m2" />
+            <option value="glb" />
+            <option value="global" />
+            <option value="und" />
+            <option value="ml" />
+            <option value="m3" />
+            <option value="kg" />
+            <option value="pza" />
+            <option value="pto" />
+            <option value="est" />
+            <option value="servicio" />
+            <option value="mes" />
+            <option value="dia" />
+            <option value="jgo" />
+            <option value="bolsa" />
+            <option value="ton" />
+            <option value="gal" />
+            <option value="lt" />
+            <option value="hh" />
+            <option value="hm" />
+          </datalist>
         </div>
 
         {/* Resumen de Totales */}
