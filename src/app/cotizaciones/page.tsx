@@ -141,9 +141,9 @@ export default function CotizacionesPage() {
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => setModalAntiguaOpen(true)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs transition-colors shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-amber-50 text-slate-800 hover:text-amber-950 font-bold text-xs border-2 border-amber-300 hover:border-amber-400 transition-all shadow-xs cursor-pointer"
           >
-            <History className="w-4 h-4 text-amber-400" />
+            <History className="w-4 h-4 text-amber-600" />
             Subir Cotización Antigua (Imagen/PDF)
           </button>
 
@@ -469,7 +469,7 @@ export default function CotizacionesPage() {
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white shadow-sm"
+              className="px-5 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-600/20 cursor-pointer"
             >
               Guardar Cotización
             </button>
