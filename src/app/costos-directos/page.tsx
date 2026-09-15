@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Calculator,
@@ -55,6 +55,19 @@ export default function CostosDirectosPage() {
   const [vistaInsumos, setVistaInsumos] = useState<'tabla' | 'indice'>('tabla');
   const [selectedGrupoModal, setSelectedGrupoModal] = useState<GrupoIndiceInsumo | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
+  // Paginación para alto rendimiento con más de 3,000 ítems
+  const [pageInsumos, setPageInsumos] = useState(1);
+  const [pagePartidas, setPagePartidas] = useState(1);
+  const ITEMS_PER_PAGE = 50;
+
+  useEffect(() => {
+    setPageInsumos(1);
+  }, [search, selectedTipoInsumo, vistaInsumos]);
+
+  useEffect(() => {
+    setPagePartidas(1);
+  }, [search, selectedEspecialidad]);
 
   const handleCopy = (text: string, code: string) => {
     navigator.clipboard.writeText(text);
@@ -148,6 +161,20 @@ export default function CostosDirectosPage() {
       a.descripcion.toLowerCase().includes(search.toLowerCase());
     return matchesEspecialidad && matchesSearch;
   });
+
+  // Paginación de Insumos
+  const totalPagesInsumos = Math.max(1, Math.ceil(filteredInsumos.length / ITEMS_PER_PAGE));
+  const paginatedInsumos = filteredInsumos.slice(
+    (pageInsumos - 1) * ITEMS_PER_PAGE,
+    pageInsumos * ITEMS_PER_PAGE
+  );
+
+  // Paginación de Partidas OE & HU
+  const totalPagesPartidas = Math.max(1, Math.ceil(filteredPartidasOEHU.length / ITEMS_PER_PAGE));
+  const paginatedPartidasOEHU = filteredPartidasOEHU.slice(
+    (pagePartidas - 1) * ITEMS_PER_PAGE,
+    pagePartidas * ITEMS_PER_PAGE
+  );
 
   // Totales de Valor m2
   const totalParcialSoles = VALOR_M2_GRUPOS.reduce((acc, g) => acc + g.parcialSoles, 0);
@@ -378,7 +405,7 @@ export default function CostosDirectosPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-medium">
-                    {filteredInsumos.map((i) => (
+                    {paginatedInsumos.map((i) => (
                       <tr key={i.codigo} className="hover:bg-sky-50/40 transition-colors">
                         <td className="py-2.5 px-4 text-center font-mono font-bold text-sky-700 bg-slate-50/50">
                           {i.codigo}
@@ -427,6 +454,36 @@ export default function CostosDirectosPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Controles de Paginación Insumos */}
+              <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div className="text-slate-600">
+                  Mostrando <strong>{filteredInsumos.length > 0 ? (pageInsumos - 1) * ITEMS_PER_PAGE + 1 : 0}</strong> a{' '}
+                  <strong>{Math.min(pageInsumos * ITEMS_PER_PAGE, filteredInsumos.length)}</strong> de{' '}
+                  <strong>{filteredInsumos.length}</strong> recursos catalogados
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={pageInsumos <= 1}
+                    onClick={() => setPageInsumos((prev) => Math.max(prev - 1, 1))}
+                    className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-bold disabled:opacity-40 hover:bg-slate-100 transition-colors shadow-2xs"
+                  >
+                    Anterior
+                  </button>
+                  <span className="font-bold text-slate-700 font-mono px-2">
+                    Pág. {pageInsumos} de {totalPagesInsumos}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={pageInsumos >= totalPagesInsumos}
+                    onClick={() => setPageInsumos((prev) => Math.min(prev + 1, totalPagesInsumos))}
+                    className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-bold disabled:opacity-40 hover:bg-slate-100 transition-colors shadow-2xs"
+                  >
+                    Siguiente
+                  </button>
+                </div>
               </div>
             </div>
           ) : (
@@ -695,7 +752,7 @@ export default function CostosDirectosPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
-                {filteredPartidasOEHU.map((p) => (
+                {paginatedPartidasOEHU.map((p) => (
                   <tr key={p.codigo} className="hover:bg-indigo-50/40 transition-colors">
                     <td className="py-2.5 px-4 text-center font-mono font-bold text-indigo-700 bg-slate-50">
                       {p.codigo}
@@ -734,6 +791,36 @@ export default function CostosDirectosPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Controles de Paginación Partidas OE & HU */}
+          <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div className="text-slate-600">
+              Mostrando <strong>{filteredPartidasOEHU.length > 0 ? (pagePartidas - 1) * ITEMS_PER_PAGE + 1 : 0}</strong> a{' '}
+              <strong>{Math.min(pagePartidas * ITEMS_PER_PAGE, filteredPartidasOEHU.length)}</strong> de{' '}
+              <strong>{filteredPartidasOEHU.length}</strong> partidas catalogadas
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={pagePartidas <= 1}
+                onClick={() => setPagePartidas((prev) => Math.max(prev - 1, 1))}
+                className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-bold disabled:opacity-40 hover:bg-slate-100 transition-colors shadow-2xs"
+              >
+                Anterior
+              </button>
+              <span className="font-bold text-slate-700 font-mono px-2">
+                Pág. {pagePartidas} de {totalPagesPartidas}
+              </span>
+              <button
+                type="button"
+                disabled={pagePartidas >= totalPagesPartidas}
+                onClick={() => setPagePartidas((prev) => Math.min(prev + 1, totalPagesPartidas))}
+                className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-bold disabled:opacity-40 hover:bg-slate-100 transition-colors shadow-2xs"
+              >
+                Siguiente
+              </button>
+            </div>
           </div>
         </div>
       )}

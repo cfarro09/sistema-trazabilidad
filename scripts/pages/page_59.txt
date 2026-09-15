@@ -1,0 +1,161 @@
+Indicadores Económicos
+- 4.6 -
+PBI MENSUAL POR SECTORES ECONÓMICOS
+(VARIACIÓN PORCENTUAL MENSUAL) (AÑO BASE 2007 = 100,0)
+PBI MENSUAL SEGÚN ACTIVIDAD ECONÓMICA
+VALOR AGREGADO DEL SECTOR CONSTRUCCIÓN
+PBI MENSUAL SEGÚN ACTIVIDAD ECONÓMICA
+VARIACIÓN PORCENTUAL EN EL SECTOR CONSTRUCCIÓN
+PBI MENSUAL POR SECTORES ECONÓMICOS
+(VARIACIÓN PORCENTUAL ACUMULADA) (AÑO BASE 2007 = 100,0)
+Elaboración: Fondo Mivivienda S.A. - Oficina de Planeamiento, Prospectiva y Desarrollo Organizativo.
+Ficha Tecnica INEI: La serie del Indicador Mensual de la Producción (Valor Bruto de Producción) ha sido llevada
+a Valor Agregado por Sector y/o Subsector, mediante los Coeficientes Técnicos de las Cuentas Nacionales,
+y a través del proceso del Benchmarking ha sido ajustado al nivel de las Cuentas Nacionales para el periodo
+1994 - 2008.
+Fuente : INEI
+Ficha Tecnica INEI: La serie del Indicador Mensual de la Producción (Valor Bruto de Producción) ha sido llevada
+a Valor Agregado por Sector y/o Subsector, mediante los Coeficientes Técnicos de las Cuentas Nacionales,
+y a través del proceso del Benchmarking ha sido ajustado al nivel de las Cuentas Nacionales para el periodo
+1994 - 2008.
+Fuente : INEI
+Año 	Mes 	PBI
+Global
+Agrope-
+cuario 	Pesca 	Mi-
+nería
+Manu-
+factura
+Elect.
+Y
+Agua
+Cons-
+truc-
+ción
+Co-
+mercio 	Otros
+2024
+Jun 	0.25 	-1.02 	56.77 	-7.16 	0.05 	0.14 	-2.25 	2.28 	3.51
+Jul 	4.63 	-2.99 	14.86 	3.42 	10.80 	2.88 	7.95 	3.36 	3.92
+Ago 	3.75 	-1.20 	-27.78 	8.91 	2.85 	2.08 	4.93 	2.86 	3.52
+Set 	3.29 	1.90 	-14.63 	1.25 	3.56 	1.28 	1.96 	3.45 	4.68
+Oct 	3.65 	14.20 	-48.50 	-1.96 	2.21 	1.84 	6.37 	3.82 	4.05
+Nov 	4.15 	12.57 	17.57 	-1.73 	7.06 	3.17 	-1.25 	3.45 	4.18
+Dic 	4.85 	7.54 	76.76 	1.97 	11.85 	1.74 	-0.88 	3.64 	4.04
+Año 	Mes 	PBI
+Global Agrope-
+cuario 	Pesca 	Mi-
+nería Manu-
+factura
+Elect.
+Y
+Agua
+Cons-
+truc-
+ción
+Co-
+mercio 	Otros
+2024
+Jun 	2.56 	4.73 	44.85 	2.21 	1.47 	2.55 	4.51 	2.44 	2.45
+Jul 	2.86 	3.60 	41.82 	2.39 	2.70 	2.60 	5.05 	2.59 	2.67
+Ago 	2.97 	3.07 	33.52 	3.22 	2.72 	2.53 	5.03 	2.62 	2.78
+Set 	3.01 	2.96 	29.51 	2.99 	2.82 	2.39 	4.64 	2.72 	3.00
+Oct 	3.08 	3.98 	19.72 	2.46 	2.75 	2.34 	4.85 	2.84 	3.11
+Nov 	3.18 	4.71 	19.35 	2.05 	3.18 	2.41 	4.22 	2.90 	3.21
+Dic 	3.33 	4.93 	24.86 	2.04 	3.90 	2.35 	3.58 	2.96 	3.29
+Año 	Mes
+Periodo Base
+Millones de nuevos
+soles a precios de 2007 Índice Base 2007 =
+100,0
+Índice
+desestacionalizado
+base 2007=100
+2023
+Junio 	2,844.00 	209.20 	219.60
+Julio 	2,818.00 	207.20 	213.00
+Agosto 	2,949.00 	216.90 	211.00
+Setiembre 	3,049.00 	224.20 	210.40
+Octubre 	3,274.00 	240.80 	209.40
+Noviembre 	3,081.00 	226.60 	210.50
+Diciembre 	4,399.00 	323.50 	223.40
+2024
+Enero 	2,458.00 	180.80 	228.20
+Febrero 	2,444.00 	179.70 	224.50
+Marzo 	2,615.00 	192.30 	217.80
+Abril 	2,932.00 	215.60 	220.80
+Mayo 	2,699.00 	198.50 	221.50
+junio 	2,710.00 	199.30 	216.50
+Julio 	3,005.00 	221.00 	220.10
+Agosto 	3,062.00 	225.20 	221.00
+Setiembre 	3,132.00 	230.30 	221.30
+Octubre 	3,471.00 	255.30 	216.20
+Noviembre 	3,046.00 	224.00 	213.80
+Diciembre 	4,379.00 	322.10 	221.70
+Año 	Mes
+Periodo Base
+Mensual 	Acumulada 	Anualizada
+2023
+Junio 	-4.12 	-8.97 	-1.85
+Julio 	-8.80 	-8.94 	-2.77
+Agosto 	-9.57 	-9.03 	-3.99
+Setiembre 	-9.41 	-9.30 	-5.26
+Octubre 	-9.06 	-9.27 	-6.51
+Noviembre 	-8.05 	-9.15 	-7.78
+Diciembre 	-0.81 	-7.87 	-7.87
+2024
+Enero 	13.16 	13.16 	-6.39
+Febrero 	6.41 	6.69 	-5.35
+Marzo 	-2.48 	5.12 	-4.57
+Abril 	7.02 	5.65 	-3.66
+Mayo 	5.54 	5.63 	-2.47
+Junio 	-2.40 	3.97 	-2.24
+Julio 	7.10 	4.46 	-0.95
+Agosto 	4.14 	4.41 	0.25
+Setiembre 	2.89 	4.18 	1.36
+Octubre 	4.86 	4.26 	2.60
+Noviembre 	-2.40 	3.58 	3.01
+Diciembre 	-0.88 	3.58 	3.58
+Ficha Tecnica INEI: El Producto Bruto Interno mensual, es estimado a partir del Método de la Producción, el que
+consiste en la sumatoria de los Valores Agregados Brutos de todas las actividades económicas del sistema, al
+cual se le agregan los Derechos de Importación (DM) y los Otros Impuestos a los Productos. La serie del Indicador
+Mensual de la Producción (Valor Bruto de Producción) ha sido llevada a Valor Agregado por Sector y/o Subsector,
+mediante los Coeficientes Técnicos de las Cuentas Nacionales, y a través del proceso del Benchmarking ha sido
+ajustado al nivel de las Cuentas Nacionales para el periodo 1994 - 2008.
+Fuente: INEI
+Ficha Tecnica INEI: La serie del Indicador Mensual de la Producción (Valor Bruto de Producción) ha sido llevada
+a Valor Agregado por Sector y/o Subsector, mediante los Coeficientes Técnicos de las Cuentas Nacionales,
+y a través del proceso del Benchmarking ha sido ajustado al nivel de las Cuentas Nacionales para el periodo
+1994 - 2008.
+Fuente : INEI
+PRODUCCIÓN CONSTRUCCIÓN ÍNDICE BASE 2007
+Fuente : INEI
+Mes 	2021 	2022 	2023 	2024
+Abril 	208.82 	219.59 	208.32 	222.97
+Mayo 	216.73 	217.91 	193.73 	205.27
+Junio 	215.11 	227.54 	216.38 	207.26
+Julio 	230.83 	234.34 	214.39 	229.85
+Agosto 	237.53 	250.21 	224.39 	234.22
+Setiembre 	246.72 	255.30 	231.96 	239.65
+Octubre 	259.45 	273.23 	249.15 	265.61
+Noviembre 	236.98 	253.73 	234.51 	233.08
+Diciembre 	321.23 	337.50 	338.08 	329.53
+DESEMBOLSOS MENSUALES DE NUEVO CRÉDITO MIVIVIENDA,
+AL CIERRE DE JUNIO DEL 2024
+Fuente: Fondo MIVIVIENDA S.A.
+Año 	Mes
+Créditos Desembolsados 	Acumulados
+Número 	Monto
+(Miles de S/.) 	Número 	Monto
+(Miles de S/.)
+2023
+Oct 	846 	153632.81 	129 284 	17 491 772
+Nov 	801 	143284.84 	130 085 	17 635 057
+Dic 	721 	126 967 	10 703 	2 075 192
+2024
+Ene 	742 	134 733 	742 	134 733
+Feb 	703 	131 503 	1 445 	266 236
+Mar 	572 	101 053 	2 017 	367 289
+Abr 	702 	125 213 	2 719 	492 502
+May 	684 	122 057 	3 403 	614 559
+Jun 	671 	119 635 	4 074 	734 194
