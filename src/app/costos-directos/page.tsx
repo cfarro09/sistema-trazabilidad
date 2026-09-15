@@ -207,13 +207,13 @@ export default function CostosDirectosPage() {
       </div>
 
       {/* Navegación por Pestañas Principales */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-2 shadow-xs flex flex-wrap gap-2">
+      <div className="bg-white rounded-2xl border border-slate-200 p-2.5 shadow-xs flex flex-wrap gap-2">
         <button
           onClick={() => setActiveTab('insumos')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'insumos'
               ? 'bg-sky-600 text-white shadow-md shadow-sky-600/20'
-              : 'text-slate-600 hover:bg-slate-50'
+              : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
           }`}
         >
           <BookOpen className="w-4 h-4" />
@@ -225,7 +225,7 @@ export default function CostosDirectosPage() {
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'valorm2'
               ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-              : 'text-slate-600 hover:bg-slate-50'
+              : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
           }`}
         >
           <Building2 className="w-4 h-4" />
@@ -237,7 +237,7 @@ export default function CostosDirectosPage() {
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'partidas'
               ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-              : 'text-slate-600 hover:bg-slate-50'
+              : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
           }`}
         >
           <Layers className="w-4 h-4" />
@@ -249,7 +249,7 @@ export default function CostosDirectosPage() {
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'apu'
               ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-              : 'text-slate-600 hover:bg-slate-50'
+              : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
           }`}
         >
           <Wrench className="w-4 h-4" />
@@ -261,7 +261,7 @@ export default function CostosDirectosPage() {
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'proveedores'
               ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-              : 'text-slate-600 hover:bg-slate-50'
+              : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
           }`}
         >
           <Truck className="w-4 h-4" />

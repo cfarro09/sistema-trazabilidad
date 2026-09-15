@@ -44,7 +44,7 @@ export default function Navbar() {
           <select
             value={selectedEmpresa}
             onChange={(e) => setSelectedEmpresa(e.target.value)}
-            className="bg-transparent font-bold text-slate-800 text-sm focus:outline-none cursor-pointer"
+            className="bg-white border border-slate-300 font-bold text-slate-900 text-xs px-2.5 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-2xs"
           >
             <option value="ALL">🏢 Todas las Empresas (Grupo)</option>
             {empresas.map((emp) => (

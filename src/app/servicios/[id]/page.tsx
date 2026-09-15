@@ -597,7 +597,7 @@ export default function ServicioDetallePage({
                 onClick={() => handleCompletarEtapa(1)}
                 className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
               >
-                <CheckCircle className="w-4 h-4" /> Marcar Convocatoria como Lista y Avanzar $\rightarrow$
+                <CheckCircle className="w-4 h-4" /> Marcar Convocatoria como Lista y Avanzar →
               </button>
             </div>
           </div>
@@ -629,7 +629,7 @@ export default function ServicioDetallePage({
                   type="date"
                   value={formData.fechaCotizacion}
                   onChange={(e) => setFormData({ ...formData, fechaCotizacion: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -648,7 +648,7 @@ export default function ServicioDetallePage({
                 <input
                   type="text"
                   value={servicio.codigoInterno}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-900"
                   readOnly
                 />
               </div>
@@ -669,7 +669,7 @@ export default function ServicioDetallePage({
                 onClick={() => handleCompletarEtapa(2)}
                 className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
               >
-                <CheckCircle className="w-4 h-4" /> Marcar Cotización como Lista y Avanzar $\rightarrow$
+                <CheckCircle className="w-4 h-4" /> Marcar Cotización como Lista y Avanzar →
               </button>
             </div>
           </div>
@@ -694,7 +694,7 @@ export default function ServicioDetallePage({
                 href="/empaquetador"
                 className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-600/30"
               >
-                Ir al Empaquetador de Expedientes $\rightarrow$
+                Ir al Empaquetador de Expedientes →
               </Link>
             </div>
 
@@ -705,7 +705,7 @@ export default function ServicioDetallePage({
                 onClick={() => handleCompletarEtapa(3)}
                 className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
               >
-                <CheckCircle className="w-4 h-4" /> Marcar Expediente como Listo y Avanzar $\rightarrow$
+                <CheckCircle className="w-4 h-4" /> Marcar Expediente como Listo y Avanzar →
               </button>
             </div>
           </div>
@@ -734,7 +734,7 @@ export default function ServicioDetallePage({
                   placeholder="Ej. 0000701"
                   value={formData.nroOrdenServicio}
                   onChange={(e) => setFormData({ ...formData, nroOrdenServicio: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold focus:bg-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -745,7 +745,7 @@ export default function ServicioDetallePage({
                   placeholder="Ej. 0000001761"
                   value={formData.nroSiaf}
                   onChange={(e) => setFormData({ ...formData, nroSiaf: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold focus:bg-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -755,7 +755,7 @@ export default function ServicioDetallePage({
                   type="date"
                   value={formData.fechaOrden}
                   onChange={(e) => setFormData({ ...formData, fechaOrden: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -766,7 +766,7 @@ export default function ServicioDetallePage({
                   placeholder="Ej. 10"
                   value={formData.plazoEjecucionDias}
                   onChange={(e) => setFormData({ ...formData, plazoEjecucionDias: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -786,7 +786,7 @@ export default function ServicioDetallePage({
                 onClick={() => handleCompletarEtapa(4)}
                 className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
               >
-                <CheckCircle className="w-4 h-4" /> Marcar Orden de Servicio (SIAF) como Lista y Avanzar $\rightarrow$
+                <CheckCircle className="w-4 h-4" /> Marcar Orden de Servicio (SIAF) como Lista y Avanzar →
               </button>
             </div>
           </div>
@@ -807,7 +807,7 @@ export default function ServicioDetallePage({
                   type="date"
                   value={formData.fechaInforme}
                   onChange={(e) => setFormData({ ...formData, fechaInforme: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -829,7 +829,7 @@ export default function ServicioDetallePage({
                 onClick={() => handleCompletarEtapa(5)}
                 className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
               >
-                <CheckCircle className="w-4 h-4" /> Marcar Informe Técnico como Listo y Avanzar $\rightarrow$
+                <CheckCircle className="w-4 h-4" /> Marcar Informe Técnico como Listo y Avanzar →
               </button>
             </div>
           </div>
@@ -851,7 +851,7 @@ export default function ServicioDetallePage({
                   placeholder="Ej. E001-150"
                   value={formData.nroFactura}
                   onChange={(e) => setFormData({ ...formData, nroFactura: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold focus:bg-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -861,7 +861,7 @@ export default function ServicioDetallePage({
                   type="date"
                   value={formData.fechaFactura}
                   onChange={(e) => setFormData({ ...formData, fechaFactura: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -893,7 +893,7 @@ export default function ServicioDetallePage({
                 onClick={() => handleCompletarEtapa(6)}
                 className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
               >
-                <CheckCircle className="w-4 h-4" /> Marcar Facturación como Lista y Avanzar $\rightarrow$
+                <CheckCircle className="w-4 h-4" /> Marcar Facturación como Lista y Avanzar →
               </button>
             </div>
           </div>
@@ -915,7 +915,7 @@ export default function ServicioDetallePage({
                   placeholder="Ej. ACTA-CONF-2026-701 o Constancia 012-2026"
                   value={formData.nroConformidad}
                   onChange={(e) => setFormData({ ...formData, nroConformidad: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:bg-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -925,7 +925,7 @@ export default function ServicioDetallePage({
                   type="date"
                   value={formData.fechaConformidad}
                   onChange={(e) => setFormData({ ...formData, fechaConformidad: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -945,7 +945,7 @@ export default function ServicioDetallePage({
                 onClick={() => handleCompletarEtapa(7)}
                 className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
               >
-                <CheckCircle className="w-4 h-4" /> Marcar Conformidad como Lista y Avanzar $\rightarrow$
+                <CheckCircle className="w-4 h-4" /> Marcar Conformidad como Lista y Avanzar →
               </button>
             </div>
           </div>
@@ -966,7 +966,7 @@ export default function ServicioDetallePage({
                   type="date"
                   value={formData.fechaPago}
                   onChange={(e) => setFormData({ ...formData, fechaPago: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -977,7 +977,7 @@ export default function ServicioDetallePage({
                   placeholder="Ej. 284329542"
                   value={formData.nroOperacion}
                   onChange={(e) => setFormData({ ...formData, nroOperacion: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold focus:bg-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 

@@ -153,7 +153,7 @@ export default function EmpresasPage() {
                   {emp._count?.servicios || 0} Servicios Registrados
                 </span>
                 <span className="text-blue-600 font-bold hover:underline cursor-pointer">
-                  Ver Documentos $\rightarrow$
+                  Ver Documentos →
                 </span>
               </div>
             </div>

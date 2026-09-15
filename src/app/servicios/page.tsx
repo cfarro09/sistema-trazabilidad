@@ -158,7 +158,7 @@ export default function ServiciosPage() {
             Trazabilidad de Contrataciones & Órdenes
           </h1>
           <p className="text-sm text-slate-500">
-            Registro, control documental por etapas (TDR $\rightarrow$ SIAF $\rightarrow$ Factura) y
+            Registro, control documental por etapas (TDR → SIAF → Factura) y
             archivo histórico.
           </p>
         </div>

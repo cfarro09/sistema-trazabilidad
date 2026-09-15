@@ -363,7 +363,7 @@ export default function NuevaCotizacionPage() {
             <button
               type="button"
               onClick={() => openCostosModal(null)}
-              className="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs"
+              className="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs"
             >
               <Search className="w-3.5 h-3.5 text-indigo-600" />
               🔍 Buscar en Costos Directos
@@ -371,14 +371,14 @@ export default function NuevaCotizacionPage() {
             <button
               type="button"
               onClick={addGroupTitle}
-              className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors"
+              className="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold transition-colors shadow-2xs"
             >
               + Agregar Título / Grupo
             </button>
             <button
               type="button"
               onClick={addItem}
-              className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-bold transition-colors"
+              className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors shadow-2xs"
             >
               + Agregar Partida
             </button>
@@ -408,7 +408,7 @@ export default function NuevaCotizacionPage() {
                           type="text"
                           value={row.item}
                           onChange={(e) => updateItem(row.id, 'item', e.target.value)}
-                          className="w-full text-center bg-transparent font-bold focus:outline-none"
+                          className="w-full text-center bg-transparent font-bold text-slate-900 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 rounded"
                         />
                       </td>
                       <td colSpan={5} className="p-2 border-r border-slate-200">
@@ -416,14 +416,15 @@ export default function NuevaCotizacionPage() {
                           type="text"
                           value={row.descripcion}
                           onChange={(e) => updateItem(row.id, 'descripcion', e.target.value)}
-                          className="w-full bg-transparent font-black tracking-wider uppercase focus:outline-none"
+                          className="w-full bg-transparent font-black tracking-wider uppercase text-slate-900 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 rounded px-1"
                         />
                       </td>
                       <td className="p-2 text-center">
                         <button
                           type="button"
                           onClick={() => removeItem(row.id)}
-                          className="text-slate-400 hover:text-rose-600"
+                          className="p-1.5 bg-slate-200 hover:bg-rose-100 text-slate-600 hover:text-rose-600 rounded-lg border border-slate-300 transition-colors"
+                          title="Eliminar título"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -433,32 +434,33 @@ export default function NuevaCotizacionPage() {
                 }
 
                 return (
-                  <tr key={row.id} className="hover:bg-slate-50">
+                  <tr key={row.id} className="hover:bg-slate-50 transition-colors">
                     <td className="p-2 border-r border-slate-200">
                       <input
                         type="text"
                         value={row.item}
                         onChange={(e) => updateItem(row.id, 'item', e.target.value)}
                         placeholder="1.01"
-                        className="w-full text-center font-mono font-bold text-slate-800 focus:outline-none"
+                        className="w-full text-center font-mono font-bold text-slate-900 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 rounded"
                       />
                     </td>
                     <td className="p-2 border-r border-slate-200 relative">
-                      <div className="flex items-start gap-1">
+                      <div className="flex items-start gap-1.5">
                         <textarea
                           rows={2}
                           value={row.descripcion}
                           onChange={(e) => updateItem(row.id, 'descripcion', e.target.value)}
                           placeholder="Descripción de la partida..."
-                          className="w-full text-xs text-slate-700 bg-transparent focus:outline-none resize-none"
+                          className="w-full text-xs text-slate-900 bg-transparent focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 rounded p-1 resize-none"
                         ></textarea>
                         <button
                           type="button"
                           title="Buscar precio referencial en catálogo de Costos Directos"
                           onClick={() => openCostosModal(row.id)}
-                          className="p-1 text-indigo-500 hover:bg-indigo-50 rounded-lg shrink-0 transition-colors"
+                          className="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-bold shrink-0 flex items-center gap-1 transition-colors shadow-2xs"
                         >
-                          <Search className="w-3.5 h-3.5" />
+                          <Search className="w-3 h-3 text-indigo-600" />
+                          <span className="text-[10px]">Costos</span>
                         </button>
                       </div>
                     </td>
@@ -467,7 +469,7 @@ export default function NuevaCotizacionPage() {
                         type="text"
                         value={row.unidad}
                         onChange={(e) => updateItem(row.id, 'unidad', e.target.value)}
-                        className="w-full text-center text-slate-600 focus:outline-none font-bold"
+                        className="w-full text-center text-slate-900 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 rounded font-bold"
                       />
                     </td>
                     <td className="p-2 border-r border-slate-200">
@@ -476,7 +478,7 @@ export default function NuevaCotizacionPage() {
                         step="0.01"
                         value={row.cantidad}
                         onChange={(e) => updateItem(row.id, 'cantidad', e.target.value)}
-                        className="w-full text-center font-semibold text-slate-800 focus:outline-none"
+                        className="w-full text-center font-semibold text-slate-900 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 rounded"
                       />
                     </td>
                     <td className="p-2 border-r border-slate-200 text-right">
@@ -485,7 +487,7 @@ export default function NuevaCotizacionPage() {
                         step="0.01"
                         value={row.precioUnitario}
                         onChange={(e) => updateItem(row.id, 'precioUnitario', e.target.value)}
-                        className="w-full text-right font-mono font-semibold text-slate-800 focus:outline-none"
+                        className="w-full text-right font-mono font-semibold text-slate-900 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 rounded"
                       />
                     </td>
                     <td className="p-2 border-r border-slate-200 text-right font-black text-slate-900 font-mono">
@@ -497,14 +499,15 @@ export default function NuevaCotizacionPage() {
                           type="button"
                           title="Buscar en catálogo"
                           onClick={() => openCostosModal(row.id)}
-                          className="p-1 text-slate-400 hover:text-indigo-600"
+                          className="p-1.5 bg-slate-100 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 rounded-lg border border-slate-200 transition-colors"
                         >
                           <Search className="w-3.5 h-3.5" />
                         </button>
                         <button
                           type="button"
+                          title="Eliminar fila"
                           onClick={() => removeItem(row.id)}
-                          className="p-1 text-slate-400 hover:text-rose-600"
+                          className="p-1.5 bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 rounded-lg border border-slate-200 transition-colors"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
