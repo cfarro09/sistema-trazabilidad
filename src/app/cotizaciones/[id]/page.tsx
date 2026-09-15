@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
   Printer,
+  Download,
   FileCheck,
   Building2,
   ExternalLink,
@@ -28,6 +29,7 @@ export default function CotizacionDetallePage({
   const [quote, setQuote] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [converting, setConverting] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     fetch(`/api/cotizaciones/${id}`)
@@ -40,6 +42,30 @@ export default function CotizacionDetallePage({
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!quote) return;
+    setDownloading(true);
+    try {
+      const res = await fetch(`/api/cotizaciones/${id}/pdf`);
+      if (!res.ok) throw new Error('Error al generar PDF');
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const cleanNum = quote.numero.replace(/[^a-zA-Z0-9-_]/g, '_');
+      a.download = `Cotizacion_${cleanNum}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert('Hubo un problema al descargar el PDF. Puedes usar el botón de Imprimir.');
+    } finally {
+      setDownloading(false);
+    }
   };
 
   const handleConvertir = async () => {
@@ -92,12 +118,25 @@ export default function CotizacionDetallePage({
         </Link>
 
         <div className="flex items-center gap-3">
+          {/* Botón Descargar PDF Real */}
+          <button
+            onClick={handleDownloadPdf}
+            disabled={downloading}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md shadow-blue-600/30 transition-all cursor-pointer disabled:opacity-50"
+            title="Descargar archivo PDF oficial en hoja A4"
+          >
+            <Download className="w-4 h-4" />
+            {downloading ? 'Generando PDF...' : 'Descargar PDF (Hoja Oficial)'}
+          </button>
+
+          {/* Botón Imprimir */}
           <button
             onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-md transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
+            title="Imprimir vista oficial"
           >
             <Printer className="w-4 h-4" />
-            Imprimir / Guardar PDF
+            Imprimir
           </button>
 
           {quote.estado !== 'ACEPTADA' ? (

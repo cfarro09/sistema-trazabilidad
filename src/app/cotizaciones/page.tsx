@@ -17,6 +17,7 @@ import {
   DollarSign,
   Layers,
   Upload,
+  Download,
 } from 'lucide-react';
 import Modal from '@/components/Modal';
 
@@ -294,13 +295,23 @@ export default function CotizacionesPage() {
                     </td>
                     <td className="px-5 py-4 text-center whitespace-nowrap">
                       <div className="flex items-center justify-center gap-1.5">
+                        <a
+                          href={`/api/cotizaciones/${c.id}/pdf`}
+                          download={`Cotizacion_${c.numero.replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white rounded-xl text-xs font-bold transition-all border border-blue-200 shadow-2xs"
+                          title="Descargar Hoja Oficial PDF (A4)"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          PDF
+                        </a>
+
                         <Link
                           href={`/cotizaciones/${c.id}`}
                           className="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
                           title="Ver Formato Oficial Imprimible"
                         >
                           <Printer className="w-3.5 h-3.5" />
-                          Formato Oficial
+                          Ver
                         </Link>
 
                         {c.estado !== 'ACEPTADA' && (
