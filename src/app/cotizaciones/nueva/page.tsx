@@ -17,8 +17,9 @@ import {
   X,
   Hammer,
   Layers,
-  HardHat,
   Wrench,
+  Edit3,
+  RotateCcw,
 } from 'lucide-react';
 import { numeroALetrasSoles } from '@/lib/number-to-letters';
 import { PARTIDAS_PRESUPUESTO, PARTIDAS_OE_HU, INSUMOS_PRECIOS } from '@/lib/costos-directos-data';
@@ -48,6 +49,9 @@ export default function NuevaCotizacionPage() {
   // Form State
   const [empresaId, setEmpresaId] = useState('');
   const [numero, setNumero] = useState('');
+  const [isManualNumero, setIsManualNumero] = useState(false);
+  const [autoNumero, setAutoNumero] = useState('');
+  const [loadingNumero, setLoadingNumero] = useState(false);
   const [entidad, setEntidad] = useState('');
   const [atencion, setAtencion] = useState('');
   const [fecha, setFecha] = useState(new Date().toISOString().substring(0, 10));
@@ -85,6 +89,25 @@ export default function NuevaCotizacionPage() {
     },
   ]);
 
+  const fetchCorrelativo = async (targetFecha?: string) => {
+    setLoadingNumero(true);
+    try {
+      const f = targetFecha || fecha || new Date().toISOString().substring(0, 10);
+      const res = await fetch(`/api/cotizaciones/correlativo?fecha=${f}`);
+      const data = await res.json();
+      if (data.success && data.data?.numero) {
+        setAutoNumero(data.data.numero);
+        if (!isManualNumero) {
+          setNumero(data.data.numero);
+        }
+      }
+    } catch (e) {
+      console.error('Error al cargar correlativo automático:', e);
+    } finally {
+      setLoadingNumero(false);
+    }
+  };
+
   useEffect(() => {
     fetch('/api/empresas')
       .then((res) => res.json())
@@ -95,6 +118,12 @@ export default function NuevaCotizacionPage() {
         }
       });
   }, []);
+
+  useEffect(() => {
+    if (!isManualNumero) {
+      fetchCorrelativo(fecha);
+    }
+  }, [fecha, isManualNumero]);
 
   // Update item field
   const updateItem = (id: string, field: keyof ItemRow, value: any) => {
@@ -338,14 +367,83 @@ export default function NuevaCotizacionPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">N° de Cotización</label>
-            <input
-              type="text"
-              required
-              value={numero}
-              onChange={(e) => setNumero(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-blue-700 focus:bg-white focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-bold text-slate-700">
+                N° de Cotización
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!isManualNumero) {
+                    setIsManualNumero(true);
+                  } else {
+                    setIsManualNumero(false);
+                    if (autoNumero) {
+                      setNumero(autoNumero);
+                    } else {
+                      fetchCorrelativo(fecha);
+                    }
+                  }
+                }}
+                className={`text-[11px] font-bold px-2 py-0.5 rounded-lg border transition-all flex items-center gap-1 cursor-pointer shadow-2xs ${
+                  isManualNumero
+                    ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
+                    : 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
+                }`}
+                title={
+                  isManualNumero
+                    ? 'Restaurar correlativo automático generado por Año y Mes'
+                    : 'Permitir ingresar cualquier formato o nomenclatura de cotización antigua'
+                }
+              >
+                {isManualNumero ? (
+                  <>
+                    <RotateCcw className="w-3 h-3 text-blue-600" />
+                    Restaurar Automático
+                  </>
+                ) : (
+                  <>
+                    <Edit3 className="w-3 h-3 text-amber-600" />
+                    Editar / Cotización Antigua
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="relative">
+              <input
+                type="text"
+                required
+                value={numero}
+                onChange={(e) => {
+                  setNumero(e.target.value);
+                  setIsManualNumero(true);
+                }}
+                placeholder={loadingNumero ? 'Generando correlativo...' : 'Ej. COT-2026-09-001 o Nº 00175 - 26'}
+                className={`w-full px-3 py-2 border rounded-xl text-xs font-mono font-bold transition-all focus:outline-none focus:ring-2 ${
+                  isManualNumero
+                    ? 'bg-white border-amber-300 text-slate-900 focus:ring-amber-500'
+                    : 'bg-blue-50/50 border-blue-200 text-blue-800 focus:ring-blue-500'
+                }`}
+              />
+              {loadingNumero && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-blue-600 font-sans font-medium">
+                  Generando...
+                </span>
+              )}
+            </div>
+
+            <p className="text-[10.5px] mt-1.5 leading-tight">
+              {isManualNumero ? (
+                <span className="text-amber-800 font-medium">
+                  ✏️ <strong>Modo manual activo:</strong> Puedes escribir el formato que desees para cotizaciones pasadas.
+                </span>
+              ) : (
+                <span className="text-blue-700 font-medium">
+                  ✨ <strong>Automático:</strong> Año-Mes-N° (se adapta al año y mes de la fecha elegida).
+                </span>
+              )}
+            </p>
           </div>
 
           <div>

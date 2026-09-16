@@ -360,13 +360,34 @@ export default function CotizacionesPage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">N° de Cotización</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold text-slate-700">N° de Cotización</label>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      const f = formAntigua.fecha || new Date().toISOString().substring(0, 10);
+                      const res = await fetch(`/api/cotizaciones/correlativo?fecha=${f}`);
+                      const data = await res.json();
+                      if (data.success && data.data?.numero) {
+                        setFormAntigua((prev) => ({ ...prev, numero: data.data.numero }));
+                      }
+                    } catch (e) {
+                      console.error(e);
+                    }
+                  }}
+                  className="text-[10px] font-bold text-blue-700 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2 py-0.5 rounded cursor-pointer transition-all"
+                  title="Generar correlativo Año-Mes-N° según la fecha ingresada"
+                >
+                  🪄 Auto Año-Mes
+                </button>
+              </div>
               <input
                 type="text"
-                placeholder="Ej. Nº 00175 - 26"
+                placeholder="Ej. Nº 00175 - 26 (o vacío para automático)"
                 value={formAntigua.numero}
                 onChange={(e) => setFormAntigua({ ...formAntigua, numero: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-semibold"
               />
             </div>
           </div>

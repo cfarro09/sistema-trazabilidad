@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { numeroALetrasSoles } from '@/lib/number-to-letters';
+import { getNextCotizacionNumero, generateUniqueCodigoInterno } from '@/lib/correlativo-cotizacion';
 
 export async function GET(request: NextRequest) {
   try {
@@ -104,16 +105,21 @@ export async function POST(request: NextRequest) {
     const montoTotal = Math.round((totalDirecto + montoIgv) * 100) / 100;
     const montoLetras = numeroALetrasSoles(montoTotal);
 
-    // Generar correlativo
-    const count = await prisma.quote.count();
-    const year = new Date().getFullYear();
-    const shortYear = String(year).slice(-2);
-    const formattedNumero = numero || `Nº ${String(count + 1).padStart(5, '0')} - ${shortYear}`;
-    const codigoInterno = `COT-${year}-${String(count + 1).padStart(5, '0')}`;
+    // Generar correlativo con Año-Mes-N° si no fue provisto
+    const quoteDate = fecha ? new Date(fecha) : new Date();
+    const year = quoteDate.getFullYear();
+    let finalNumero = numero ? numero.trim() : '';
+
+    if (!finalNumero) {
+      const autoCorrelativo = await getNextCotizacionNumero(quoteDate);
+      finalNumero = autoCorrelativo.numero;
+    }
+
+    const codigoInterno = await generateUniqueCodigoInterno(finalNumero, year);
 
     const quote = await prisma.quote.create({
       data: {
-        numero: formattedNumero,
+        numero: finalNumero,
         codigoInterno,
         empresaId,
         entidad,

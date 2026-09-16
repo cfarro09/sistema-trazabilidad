@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { numeroALetrasSoles } from '@/lib/number-to-letters';
+import { generateUniqueCodigoInterno } from '@/lib/correlativo-cotizacion';
 
 export async function GET(
   request: NextRequest,
@@ -41,6 +42,7 @@ export async function PUT(
     const body = await request.json();
 
     const {
+      numero,
       empresaId,
       entidad,
       atencion,
@@ -58,6 +60,12 @@ export async function PUT(
 
     // Recalcular montos si vienen items
     let updateData: any = {};
+    if (numero !== undefined) {
+      const cleanNum = String(numero).trim();
+      updateData.numero = cleanNum;
+      const targetDate = fecha ? new Date(fecha) : new Date();
+      updateData.codigoInterno = await generateUniqueCodigoInterno(cleanNum, targetDate.getFullYear(), id);
+    }
     if (empresaId) updateData.empresaId = empresaId;
     if (entidad) updateData.entidad = entidad;
     if (atencion !== undefined) updateData.atencion = atencion;
