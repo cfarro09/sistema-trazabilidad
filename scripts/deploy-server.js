@@ -43,9 +43,6 @@ echo "=== Running Prisma generate & db push ==="
 npx prisma generate
 npx prisma db push
 
-echo "=== Seeding database ==="
-npm run db:seed
-
 echo "=== Building Next.js application ==="
 npm run build
 

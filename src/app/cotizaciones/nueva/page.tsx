@@ -339,11 +339,15 @@ export default function NuevaCotizacionPage() {
       });
 
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.data?.id) {
+        alert('¡Cotización guardada exitosamente!');
         router.push(`/cotizaciones/${data.data.id}`);
+      } else {
+        alert('No se pudo guardar la cotización: ' + (data.error || 'Verifique que los datos requeridos estén completos.'));
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      alert('Error de conexión al guardar la cotización: ' + (e.message || e));
     } finally {
       setSaving(false);
     }

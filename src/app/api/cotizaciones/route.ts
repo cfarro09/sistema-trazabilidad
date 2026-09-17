@@ -71,6 +71,27 @@ export async function POST(request: NextRequest) {
       archivoPdf,
     } = body;
 
+    // Resolver empresaId válida para evitar P2003 Foreign Key constraint violation
+    let validEmpresaId = empresaId;
+    let company = null;
+
+    if (validEmpresaId) {
+      company = await prisma.company.findUnique({
+        where: { id: validEmpresaId },
+      });
+    }
+
+    if (!company) {
+      company = await prisma.company.findFirst();
+      if (!company) {
+        return NextResponse.json(
+          { success: false, error: 'No hay empresas registradas en la base de datos' },
+          { status: 400 }
+        );
+      }
+      validEmpresaId = company.id;
+    }
+
     // Calcular montos de ítems
     let costoDirecto = 0;
     const formattedItems = (items || []).map((it: any, index: number) => {
@@ -82,8 +103,8 @@ export async function POST(request: NextRequest) {
       }
 
       return {
-        item: it.item || String(index + 1),
-        descripcion: it.descripcion,
+        item: String(it.item || `${index + 1}.00`),
+        descripcion: String(it.descripcion || (it.esTitulo ? 'SECCIÓN' : 'PARTIDA SIN DESCRIPCIÓN')).trim(),
         unidad: it.unidad || 'Global',
         cantidad,
         precioUnitario,
@@ -121,7 +142,7 @@ export async function POST(request: NextRequest) {
       data: {
         numero: finalNumero,
         codigoInterno,
-        empresaId,
+        empresaId: validEmpresaId,
         entidad,
         atencion: atencion || 'Unidad de Logística',
         fecha: fecha ? new Date(fecha) : new Date(),
