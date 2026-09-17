@@ -20,6 +20,8 @@ import {
   Wrench,
   Edit3,
   RotateCcw,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import { numeroALetrasSoles } from '@/lib/number-to-letters';
 import { PARTIDAS_PRESUPUESTO, PARTIDAS_OE_HU, INSUMOS_PRECIOS } from '@/lib/costos-directos-data';
@@ -191,6 +193,18 @@ export default function NuevaCotizacionPage() {
     setItems(updated);
   };
 
+  const moveItem = (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= items.length) return;
+    setItems((prev) => {
+      const copy = [...prev];
+      const temp = copy[index];
+      copy[index] = copy[targetIndex];
+      copy[targetIndex] = temp;
+      return copy;
+    });
+  };
+
   const addGroupTitle = () => {
     const newId = String(Date.now());
     const nextNum = getNextTitleCorrelativo(items);
@@ -207,6 +221,15 @@ export default function NuevaCotizacionPage() {
         esTitulo: true,
       },
     ]);
+    setTimeout(() => {
+      const inputs = document.querySelectorAll<HTMLInputElement>('input[data-item-title="true"]');
+      if (inputs.length > 0) {
+        const lastInput = inputs[inputs.length - 1];
+        lastInput.focus();
+        lastInput.select();
+        lastInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 60);
   };
 
   const addItem = () => {
@@ -225,6 +248,14 @@ export default function NuevaCotizacionPage() {
         esTitulo: false,
       },
     ]);
+    setTimeout(() => {
+      const textareas = document.querySelectorAll<HTMLTextAreaElement>('textarea[data-item-desc="true"]');
+      if (textareas.length > 0) {
+        const lastTextarea = textareas[textareas.length - 1];
+        lastTextarea.focus();
+        lastTextarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 60);
   };
 
   const removeItem = (id: string) => {
@@ -497,7 +528,8 @@ export default function NuevaCotizacionPage() {
 
       {/* Tabla Desagregada de Partidas */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+        {/* Barra de Controles Sticky (Fija al hacer scroll) */}
+        <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-md py-3 -mx-6 px-6 -mt-6 border-b border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-t-3xl transition-all">
           <div>
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <FileSpreadsheet className="w-5 h-5 text-blue-600" />
@@ -512,7 +544,7 @@ export default function NuevaCotizacionPage() {
             <button
               type="button"
               onClick={() => openCostosModal(null)}
-              className="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs"
+              className="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
             >
               <Search className="w-3.5 h-3.5 text-indigo-600" />
               🔍 Buscar en Costos Directos
@@ -521,22 +553,23 @@ export default function NuevaCotizacionPage() {
               type="button"
               onClick={() => recalcularCorrelativos()}
               title="Renumerar automáticamente los correlativos (1.00, 1.01, 1.02... / 2.00, 2.01...)"
-              className="px-3.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs"
+              className="px-3.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
             >
               <span>🔢</span> Renumerar Correlativo
             </button>
             <button
               type="button"
               onClick={addGroupTitle}
-              className="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold transition-colors shadow-2xs"
+              className="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold transition-colors shadow-2xs cursor-pointer"
             >
               + Agregar Título / Grupo
             </button>
             <button
               type="button"
               onClick={addItem}
-              className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors shadow-2xs"
+              className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors shadow-2xs cursor-pointer flex items-center gap-1"
             >
+              <Plus className="w-3.5 h-3.5" />
               + Agregar Partida
             </button>
           </div>
@@ -552,11 +585,11 @@ export default function NuevaCotizacionPage() {
                 <th className="p-2.5 w-20 text-center border-r border-slate-800">CANT.</th>
                 <th className="p-2.5 w-28 text-right border-r border-slate-800">P. UNIT (S/)</th>
                 <th className="p-2.5 w-28 text-right border-r border-slate-800">P. PARCIAL (S/)</th>
-                <th className="p-2.5 w-16 text-center">ACCIONES</th>
+                <th className="p-2.5 w-32 text-center">ACCIONES</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
-              {items.map((row) => {
+              {items.map((row, index) => {
                 if (row.esTitulo) {
                   return (
                     <tr key={row.id} className="bg-slate-100 font-bold text-slate-900">
@@ -572,20 +605,41 @@ export default function NuevaCotizacionPage() {
                       <td colSpan={5} className="p-2 border-r border-slate-200">
                         <input
                           type="text"
+                          data-item-title="true"
                           value={row.descripcion}
                           onChange={(e) => updateItem(row.id, 'descripcion', e.target.value)}
                           className="w-full bg-transparent font-black tracking-wider uppercase text-slate-900 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 rounded px-1"
                         />
                       </td>
                       <td className="p-2 text-center">
-                        <button
-                          type="button"
-                          onClick={() => removeItem(row.id)}
-                          className="p-1.5 bg-slate-200 hover:bg-rose-100 text-slate-600 hover:text-rose-600 rounded-lg border border-slate-300 transition-colors"
-                          title="Eliminar título"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            type="button"
+                            title="Subir posición de la sección"
+                            disabled={index === 0}
+                            onClick={() => moveItem(index, 'up')}
+                            className="p-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 disabled:opacity-25 disabled:cursor-not-allowed rounded-lg border border-slate-300 transition-colors cursor-pointer"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            title="Bajar posición de la sección"
+                            disabled={index === items.length - 1}
+                            onClick={() => moveItem(index, 'down')}
+                            className="p-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 disabled:opacity-25 disabled:cursor-not-allowed rounded-lg border border-slate-300 transition-colors cursor-pointer"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeItem(row.id)}
+                            className="p-1.5 bg-slate-200 hover:bg-rose-100 text-slate-600 hover:text-rose-600 rounded-lg border border-slate-300 transition-colors cursor-pointer"
+                            title="Eliminar título"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -607,6 +661,7 @@ export default function NuevaCotizacionPage() {
                       <div className="flex items-start gap-1.5">
                         <textarea
                           rows={2}
+                          data-item-desc="true"
                           value={row.descripcion}
                           onChange={(e) => updateItem(row.id, 'descripcion', e.target.value)}
                           placeholder="Descripción de la partida..."
@@ -693,9 +748,27 @@ export default function NuevaCotizacionPage() {
                       <div className="flex items-center justify-center gap-1">
                         <button
                           type="button"
-                          title="Buscar en catálogo"
+                          title="Subir posición de la partida"
+                          disabled={index === 0}
+                          onClick={() => moveItem(index, 'up')}
+                          className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 disabled:opacity-25 disabled:cursor-not-allowed rounded-lg border border-slate-200 transition-colors cursor-pointer"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          title="Bajar posición de la partida"
+                          disabled={index === items.length - 1}
+                          onClick={() => moveItem(index, 'down')}
+                          className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 disabled:opacity-25 disabled:cursor-not-allowed rounded-lg border border-slate-200 transition-colors cursor-pointer"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          title="Buscar en catálogo de Costos Directos"
                           onClick={() => openCostosModal(row.id)}
-                          className="p-1.5 bg-slate-100 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 rounded-lg border border-slate-200 transition-colors"
+                          className="p-1.5 bg-slate-100 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 rounded-lg border border-slate-200 transition-colors cursor-pointer"
                         >
                           <Search className="w-3.5 h-3.5" />
                         </button>
@@ -703,7 +776,7 @@ export default function NuevaCotizacionPage() {
                           type="button"
                           title="Eliminar fila"
                           onClick={() => removeItem(row.id)}
-                          className="p-1.5 bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 rounded-lg border border-slate-200 transition-colors"
+                          className="p-1.5 bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 rounded-lg border border-slate-200 transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -738,6 +811,55 @@ export default function NuevaCotizacionPage() {
             <option value="hh" />
             <option value="hm" />
           </datalist>
+        </div>
+
+        {/* Controles al pie de la tabla (Para agregar directamente abajo sin tener que subir) */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 pb-1 border-t border-slate-200 bg-slate-50/80 p-3.5 rounded-2xl">
+          <div className="text-xs text-slate-600 font-medium flex items-center gap-2">
+            <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            <span>Total partidas: <strong className="text-slate-900">{items.filter((i) => !i.esTitulo).length}</strong></span>
+            {items.some((i) => i.esTitulo) && (
+              <span className="text-slate-400">
+                · {items.filter((i) => i.esTitulo).length} títulos / secciones
+              </span>
+            )}
+            <span className="text-slate-400 ml-2 hidden md:inline">| Puedes cambiar el orden con 🔼 y 🔽</span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => recalcularCorrelativos()}
+              title="Renumerar automáticamente los correlativos (1.00, 1.01, 1.02... / 2.00, 2.01...)"
+              className="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+            >
+              <span>🔢</span> Renumerar Correlativo
+            </button>
+            <button
+              type="button"
+              onClick={() => openCostosModal(null)}
+              className="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+            >
+              <Search className="w-3.5 h-3.5 text-indigo-600" />
+              🔍 Buscar en Costos Directos
+            </button>
+            <button
+              type="button"
+              onClick={addGroupTitle}
+              className="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold transition-colors shadow-2xs cursor-pointer"
+            >
+              + Agregar Título / Grupo
+            </button>
+            <button
+              type="button"
+              onClick={addItem}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-600/25 cursor-pointer flex items-center gap-1.5"
+              title="Agregar una nueva partida al final"
+            >
+              <Plus className="w-4 h-4" />
+              + Agregar Partida
+            </button>
+          </div>
         </div>
 
         {/* Resumen de Totales */}
