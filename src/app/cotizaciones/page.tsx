@@ -21,6 +21,7 @@ import {
   Edit3,
   Trash2,
   Copy,
+  RotateCcw,
 } from 'lucide-react';
 import Modal from '@/components/Modal';
 import DuplicateQuoteModal from '@/components/DuplicateQuoteModal';
@@ -144,6 +145,32 @@ export default function CotizacionesPage() {
         fetchCotizaciones();
       } else {
         alert('Error al eliminar: ' + (data.error || 'No se pudo eliminar'));
+      }
+    } catch (e: any) {
+      alert('Error de conexión: ' + e.message);
+    }
+  };
+
+  const handleRevertirEstado = async (id: string, numero: string) => {
+    if (
+      !confirm(
+        `¿Deseas revertir la cotización ${numero} a estado Pendiente/Borrador?\n\nPodrás editarla o volver a aceptarla cuando desees.`
+      )
+    ) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/cotizaciones/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado: 'ENVIADA' }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Cotización revertida a Pendiente exitosamente.');
+        fetchCotizaciones();
+      } else {
+        alert('Error: ' + (data.error || 'No se pudo revertir el estado'));
       }
     } catch (e: any) {
       alert('Error de conexión: ' + e.message);
@@ -353,35 +380,51 @@ export default function CotizacionesPage() {
                           Duplicar
                         </button>
 
-                        {c.estado !== 'ACEPTADA' && (
-                          <Link
-                            href={`/cotizaciones/nueva?edit=${c.id}`}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 text-amber-800 hover:bg-amber-600 hover:text-white rounded-xl text-xs font-bold transition-all border border-amber-200 shadow-2xs"
-                            title="Editar cotización completa (datos y partidas)"
-                          >
-                            <Edit3 className="w-3.5 h-3.5" />
-                            Editar
-                          </Link>
-                        )}
+                        {/* Botón Editar Cotización (Siempre disponible, con aviso para aceptadas) */}
+                        <Link
+                          href={`/cotizaciones/nueva?edit=${c.id}`}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all border shadow-2xs ${
+                            c.estado === 'ACEPTADA'
+                              ? 'bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-600 hover:text-white'
+                              : 'bg-amber-50 text-amber-800 hover:bg-amber-600 hover:text-white border-amber-200'
+                          }`}
+                          title={
+                            c.estado === 'ACEPTADA'
+                              ? 'Editar cotización (Aceptada: se sincronizará con la Orden en Trazabilidad)'
+                              : 'Editar cotización completa (datos y partidas)'
+                          }
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                          Editar
+                        </Link>
 
-                        {c.estado !== 'ACEPTADA' && (
-                          <button
-                            onClick={() => handleConvertir(c.id)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-xl text-xs font-bold transition-all border border-emerald-200 cursor-pointer"
-                            title="Convertir a Orden de Servicio"
-                          >
-                            <FileCheck className="w-3.5 h-3.5" />
-                            Aceptar
-                          </button>
-                        )}
+                        {c.estado !== 'ACEPTADA' ? (
+                          <>
+                            <button
+                              onClick={() => handleConvertir(c.id)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-xl text-xs font-bold transition-all border border-emerald-200 cursor-pointer"
+                              title="Convertir a Orden de Servicio"
+                            >
+                              <FileCheck className="w-3.5 h-3.5" />
+                              Aceptar
+                            </button>
 
-                        {c.estado !== 'ACEPTADA' && (
+                            <button
+                              onClick={() => handleDeleteCotizacion(c.id, c.numero)}
+                              className="inline-flex items-center p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-xl text-xs font-bold transition-all border border-rose-200 cursor-pointer"
+                              title="Eliminar cotización"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </>
+                        ) : (
                           <button
-                            onClick={() => handleDeleteCotizacion(c.id, c.numero)}
-                            className="inline-flex items-center p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-xl text-xs font-bold transition-all border border-rose-200 cursor-pointer"
-                            title="Eliminar cotización"
+                            onClick={() => handleRevertirEstado(c.id, c.numero)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-700 hover:text-white rounded-xl text-xs font-bold transition-all border border-slate-300 shadow-2xs cursor-pointer"
+                            title="Revertir estado a Pendiente/Borrador si se aceptó por error"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <RotateCcw className="w-3.5 h-3.5" />
+                            Revertir
                           </button>
                         )}
                       </div>

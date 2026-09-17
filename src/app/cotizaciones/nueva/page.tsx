@@ -46,6 +46,7 @@ function CotizacionForm() {
   const isEditing = Boolean(editId);
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
+  const [quoteEstado, setQuoteEstado] = useState<string>('');
 
   const [empresas, setEmpresas] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
@@ -139,6 +140,7 @@ function CotizacionForm() {
       .then((data) => {
         if (data.success && data.data) {
           const q = data.data;
+          if (q.estado) setQuoteEstado(q.estado);
           if (q.empresaId) setEmpresaId(q.empresaId);
           if (q.numero) {
             setNumero(q.numero);
@@ -457,6 +459,20 @@ function CotizacionForm() {
           </button>
         </div>
       </div>
+
+      {quoteEstado === 'ACEPTADA' && (
+        <div className="bg-amber-50 border border-amber-300 rounded-2xl p-4 flex items-start gap-3 shadow-xs">
+          <span className="text-xl shrink-0">⚠️</span>
+          <div className="space-y-1">
+            <h4 className="text-xs font-bold text-amber-900">
+              Cotización Aceptada y Vinculada a Trazabilidad
+            </h4>
+            <p className="text-2xs text-amber-800 leading-relaxed">
+              Esta cotización ya fue convertida a una Orden de Servicio activa. Puedes corregir libremente errores humanos en partidas, descripciones, cantidades y precios. Al guardar, los cambios se reflejarán en el documento oficial PDF y se sincronizarán automáticamente con los montos del servicio en Trazabilidad.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Datos del Encabezado */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">

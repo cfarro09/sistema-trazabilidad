@@ -130,6 +130,21 @@ export async function PUT(
       },
     });
 
+    // Sincronizar con el Servicio en Trazabilidad si la cotización ya estaba aceptada/vinculada
+    if (updated.servicioId) {
+      await prisma.serviceContract.update({
+        where: { id: updated.servicioId },
+        data: {
+          montoSinIgv: updated.montoCostoDirecto,
+          montoIgv: updated.montoIgv,
+          montoTotal: updated.montoTotal,
+          objetoContratacion: updated.objetoServicio,
+          descripcionDetallada: updated.objetoServicio,
+          nroCotizacion: updated.numero,
+        },
+      }).catch((err) => console.warn('No se pudo sincronizar cotización con serviceContract:', err));
+    }
+
     return NextResponse.json({ success: true, data: updated });
   } catch (error: any) {
     console.error('Error updating quote:', error);

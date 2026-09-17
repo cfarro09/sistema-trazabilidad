@@ -66,6 +66,32 @@ export default function CotizacionDetallePage({
     }
   };
 
+  const handleRevertirEstado = async () => {
+    if (
+      !confirm(
+        `¿Deseas revertir la cotización ${quote?.numero} al estado Pendiente/Borrador?\n\nPodrás volver a aceptarla cuando desees.`
+      )
+    ) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/cotizaciones/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado: 'ENVIADA' }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Cotización revertida a Pendiente exitosamente.');
+        setQuote(data.data);
+      } else {
+        alert('Error: ' + (data.error || 'No se pudo revertir el estado'));
+      }
+    } catch (e: any) {
+      alert('Error de conexión: ' + e.message);
+    }
+  };
+
   useEffect(() => {
     fetch(`/api/cotizaciones/${id}`)
       .then((res) => res.json())
@@ -200,17 +226,19 @@ export default function CotizacionDetallePage({
         </Link>
 
         <div className="flex items-center gap-3">
-          {/* Botón Editar Toda la Cotización */}
-          {quote.estado !== 'ACEPTADA' && (
-            <Link
-              href={`/cotizaciones/nueva?edit=${quote.id}`}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-md shadow-amber-500/20 transition-all cursor-pointer"
-              title="Editar toda la cotización (partidas, precios y condiciones)"
-            >
-              <Edit3 className="w-3.5 h-3.5" />
-              Editar Cotización
-            </Link>
-          )}
+          {/* Botón Editar Toda la Cotización - Siempre disponible */}
+          <Link
+            href={`/cotizaciones/nueva?edit=${quote.id}`}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-md shadow-amber-500/20 transition-all cursor-pointer"
+            title={
+              quote.estado === 'ACEPTADA'
+                ? 'Editar cotización (Aceptada: se sincronizará con la Orden en Trazabilidad)'
+                : 'Editar toda la cotización (partidas, precios y condiciones)'
+            }
+          >
+            <Edit3 className="w-3.5 h-3.5" />
+            Editar Cotización
+          </Link>
 
           {/* Botón Duplicar Cotización */}
           <button
@@ -225,7 +253,7 @@ export default function CotizacionDetallePage({
           {/* Botón Editar N° */}
           <button
             onClick={handleOpenEditNumero}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs border border-slate-300 transition-all cursor-pointer shadow-xs"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs border border-slate-300 transition-all cursor-pointer shadow-xs"
             title="Editar número o correlativo de la cotización"
           >
             <Edit3 className="w-3.5 h-3.5 text-slate-600" />
@@ -275,13 +303,24 @@ export default function CotizacionDetallePage({
               {converting ? 'Convirtiendo...' : 'Convertir a Orden de Servicio'}
             </button>
           ) : (
-            <Link
-              href={quote.servicioId ? `/servicios/${quote.servicioId}` : '/servicios'}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 font-bold text-xs hover:bg-blue-100 transition-colors"
-            >
-              <CheckCircle className="w-4 h-4 text-emerald-600" />
-              Ver en Trazabilidad
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                href={quote.servicioId ? `/servicios/${quote.servicioId}` : '/servicios'}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 font-bold text-xs hover:bg-blue-100 transition-colors"
+              >
+                <CheckCircle className="w-4 h-4 text-emerald-600" />
+                Ver en Trazabilidad
+              </Link>
+
+              <button
+                onClick={handleRevertirEstado}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-700 text-slate-700 hover:text-white border border-slate-300 font-bold text-xs shadow-xs transition-all cursor-pointer"
+                title="Revertir a Pendiente/Borrador si se aceptó por error"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Revertir a Pendiente
+              </button>
+            </div>
           )}
         </div>
       </div>
