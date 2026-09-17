@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowLeft,
   Plus,
@@ -37,8 +37,13 @@ interface ItemRow {
   esTitulo: boolean;
 }
 
-export default function NuevaCotizacionPage() {
+function CotizacionForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get('edit') || searchParams.get('id');
+  const isEditing = Boolean(editId);
+  const [loadingEdit, setLoadingEdit] = useState(false);
+
   const [empresas, setEmpresas] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -116,16 +121,62 @@ export default function NuevaCotizacionPage() {
       .then((data) => {
         if (data.success && data.data.length > 0) {
           setEmpresas(data.data);
-          setEmpresaId(data.data[0].id);
+          if (!editId) {
+            setEmpresaId((prev) => prev || data.data[0].id);
+          }
         }
       });
-  }, []);
+  }, [editId]);
 
   useEffect(() => {
-    if (!isManualNumero) {
+    if (!editId) return;
+    setLoadingEdit(true);
+    fetch(`/api/cotizaciones/${editId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data) {
+          const q = data.data;
+          if (q.empresaId) setEmpresaId(q.empresaId);
+          if (q.numero) {
+            setNumero(q.numero);
+            setIsManualNumero(true);
+          }
+          if (q.entidad) setEntidad(q.entidad);
+          if (q.atencion) setAtencion(q.atencion);
+          if (q.fecha) setFecha(new Date(q.fecha).toISOString().substring(0, 10));
+          if (q.objetoServicio) setObjetoServicio(q.objetoServicio);
+          if (q.ubicacion) setUbicacion(q.ubicacion);
+          if (q.validezOferta) setValidezOferta(q.validezOferta);
+          if (q.tiempoEjecucion) setTiempoEjecucion(q.tiempoEjecucion);
+          if (q.garantia) setGarantia(q.garantia);
+          if (q.formaPago) setFormaPago(q.formaPago);
+          if (q.lugarEjecucion) setLugarEjecucion(q.lugarEjecucion);
+
+          if (q.items && q.items.length > 0) {
+            setItems(
+              q.items.map((it: any) => ({
+                id: it.id || String(Date.now() + Math.random()),
+                item: it.item || '',
+                descripcion: it.descripcion || '',
+                unidad: it.unidad || 'Global',
+                cantidad: it.cantidad ?? 1,
+                precioUnitario: it.precioUnitario ?? 0,
+                precioParcial: it.precioParcial ?? 0,
+                esTitulo: Boolean(it.esTitulo),
+              }))
+            );
+          }
+        }
+      })
+      .catch((err) => console.error('Error al cargar cotización para edición:', err))
+      .finally(() => setLoadingEdit(false));
+  }, [editId]);
+
+  useEffect(() => {
+    if (!isManualNumero && !isEditing) {
       fetchCorrelativo(fecha);
     }
-  }, [fecha, isManualNumero]);
+  }, [fecha, isManualNumero, isEditing]);
 
   // Update item field
   const updateItem = (id: string, field: keyof ItemRow, value: any) => {
@@ -315,8 +366,11 @@ export default function NuevaCotizacionPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch('/api/cotizaciones', {
-        method: 'POST',
+      const url = isEditing ? `/api/cotizaciones/${editId}` : '/api/cotizaciones';
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           empresaId,
@@ -340,7 +394,7 @@ export default function NuevaCotizacionPage() {
 
       const data = await res.json();
       if (data.success && data.data?.id) {
-        alert('¡Cotización guardada exitosamente!');
+        alert(isEditing ? '¡Cotización actualizada exitosamente!' : '¡Cotización guardada exitosamente!');
         router.push(`/cotizaciones/${data.data.id}`);
       } else {
         alert('No se pudo guardar la cotización: ' + (data.error || 'Verifique que los datos requeridos estén completos.'));
@@ -357,22 +411,34 @@ export default function NuevaCotizacionPage() {
     <form onSubmit={handleSubmit} className="space-y-6 max-w-7xl mx-auto pb-16">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <Link
-          href="/cotizaciones"
-          className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-xs"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Volver a Cotizaciones
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/cotizaciones"
+            className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-xs"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Volver a Cotizaciones
+          </Link>
+          {isEditing && (
+            <span className="text-xs font-bold bg-amber-100 text-amber-900 px-3 py-1.5 rounded-xl border border-amber-300 flex items-center gap-1.5 shadow-2xs">
+              <Edit3 className="w-3.5 h-3.5 text-amber-700" />
+              Modo Edición: <span className="font-mono font-black">{numero || 'Cargando...'}</span>
+            </span>
+          )}
+        </div>
 
         <div className="flex items-center gap-3">
           <button
             type="submit"
-            disabled={saving}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-600/30 transition-all disabled:opacity-50"
+            disabled={saving || loadingEdit}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-600/30 transition-all disabled:opacity-50 cursor-pointer"
           >
             <Save className="w-4 h-4" />
-            {saving ? 'Guardando...' : 'Guardar y Ver Formato Oficial PDF'}
+            {saving
+              ? 'Guardando...'
+              : isEditing
+              ? 'Guardar Cambios y Ver Formato PDF'
+              : 'Guardar y Ver Formato Oficial PDF'}
           </button>
         </div>
       </div>
@@ -1220,5 +1286,13 @@ export default function NuevaCotizacionPage() {
         </div>
       )}
     </form>
+  );
+}
+
+export default function NuevaCotizacionPage() {
+  return (
+    <Suspense fallback={<div className="p-12 text-center text-slate-500 font-medium">Cargando formulario de cotización...</div>}>
+      <CotizacionForm />
+    </Suspense>
   );
 }

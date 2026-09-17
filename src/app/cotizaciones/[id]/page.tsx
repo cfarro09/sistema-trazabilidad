@@ -18,6 +18,7 @@ import {
   Edit3,
   Sparkles,
   RotateCcw,
+  Trash2,
 } from 'lucide-react';
 import Modal from '@/components/Modal';
 
@@ -41,6 +42,24 @@ export default function CotizacionDetallePage({
   const [savingNumero, setSavingNumero] = useState(false);
   const [loadingAutoNumero, setLoadingAutoNumero] = useState(false);
   const [errorNumero, setErrorNumero] = useState('');
+
+  const handleDeleteQuote = async () => {
+    if (!confirm(`¿Estás seguro de eliminar esta cotización (${quote?.numero})? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/cotizaciones/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        alert('Cotización eliminada correctamente');
+        router.push('/cotizaciones');
+      } else {
+        alert('Error al eliminar: ' + (data.error || 'No se pudo eliminar'));
+      }
+    } catch (e: any) {
+      alert('Error de conexión: ' + e.message);
+    }
+  };
 
   useEffect(() => {
     fetch(`/api/cotizaciones/${id}`)
@@ -176,10 +195,22 @@ export default function CotizacionDetallePage({
         </Link>
 
         <div className="flex items-center gap-3">
+          {/* Botón Editar Toda la Cotización */}
+          {quote.estado !== 'ACEPTADA' && (
+            <Link
+              href={`/cotizaciones/nueva?edit=${quote.id}`}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-md shadow-amber-500/20 transition-all cursor-pointer"
+              title="Editar toda la cotización (partidas, precios y condiciones)"
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              Editar Cotización
+            </Link>
+          )}
+
           {/* Botón Editar N° */}
           <button
             onClick={handleOpenEditNumero}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs border border-slate-300 transition-all cursor-pointer shadow-xs"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs border border-slate-300 transition-all cursor-pointer shadow-xs"
             title="Editar número o correlativo de la cotización"
           >
             <Edit3 className="w-3.5 h-3.5 text-slate-600" />
@@ -206,6 +237,18 @@ export default function CotizacionDetallePage({
             <Printer className="w-4 h-4" />
             Imprimir
           </button>
+
+          {/* Botón Eliminar Cotización */}
+          {quote.estado !== 'ACEPTADA' && (
+            <button
+              onClick={handleDeleteQuote}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white font-bold text-xs border border-rose-200 transition-all cursor-pointer shadow-xs"
+              title="Eliminar esta cotización permanentemente"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Eliminar
+            </button>
+          )}
 
           {quote.estado !== 'ACEPTADA' ? (
             <button

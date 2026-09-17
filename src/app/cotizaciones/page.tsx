@@ -18,6 +18,8 @@ import {
   Layers,
   Upload,
   Download,
+  Edit3,
+  Trash2,
 } from 'lucide-react';
 import Modal from '@/components/Modal';
 
@@ -121,6 +123,24 @@ export default function CotizacionesPage() {
       }
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const handleDeleteCotizacion = async (id: string, numero: string) => {
+    if (!confirm(`¿Estás seguro de eliminar la cotización ${numero}? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/cotizaciones/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        alert('Cotización eliminada correctamente');
+        fetchCotizaciones();
+      } else {
+        alert('Error al eliminar: ' + (data.error || 'No se pudo eliminar'));
+      }
+    } catch (e: any) {
+      alert('Error de conexión: ' + e.message);
     }
   };
 
@@ -315,13 +335,34 @@ export default function CotizacionesPage() {
                         </Link>
 
                         {c.estado !== 'ACEPTADA' && (
+                          <Link
+                            href={`/cotizaciones/nueva?edit=${c.id}`}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 text-amber-800 hover:bg-amber-600 hover:text-white rounded-xl text-xs font-bold transition-all border border-amber-200 shadow-2xs"
+                            title="Editar cotización completa (datos y partidas)"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                            Editar
+                          </Link>
+                        )}
+
+                        {c.estado !== 'ACEPTADA' && (
                           <button
                             onClick={() => handleConvertir(c.id)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-xl text-xs font-bold transition-all border border-emerald-200"
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-xl text-xs font-bold transition-all border border-emerald-200 cursor-pointer"
                             title="Convertir a Orden de Servicio"
                           >
                             <FileCheck className="w-3.5 h-3.5" />
                             Aceptar
+                          </button>
+                        )}
+
+                        {c.estado !== 'ACEPTADA' && (
+                          <button
+                            onClick={() => handleDeleteCotizacion(c.id, c.numero)}
+                            className="inline-flex items-center p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-xl text-xs font-bold transition-all border border-rose-200 cursor-pointer"
+                            title="Eliminar cotización"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         )}
                       </div>

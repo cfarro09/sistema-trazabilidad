@@ -66,7 +66,10 @@ export async function PUT(
       const targetDate = fecha ? new Date(fecha) : new Date();
       updateData.codigoInterno = await generateUniqueCodigoInterno(cleanNum, targetDate.getFullYear(), id);
     }
-    if (empresaId) updateData.empresaId = empresaId;
+    if (empresaId) {
+      const company = await prisma.company.findUnique({ where: { id: empresaId } });
+      if (company) updateData.empresaId = empresaId;
+    }
     if (entidad) updateData.entidad = entidad;
     if (atencion !== undefined) updateData.atencion = atencion;
     if (fecha) updateData.fecha = new Date(fecha);
@@ -90,8 +93,8 @@ export async function PUT(
         }
 
         return {
-          item: it.item || String(index + 1),
-          descripcion: it.descripcion,
+          item: String(it.item || `${index + 1}.00`),
+          descripcion: String(it.descripcion || (it.esTitulo ? 'SECCIÓN' : 'PARTIDA SIN DESCRIPCIÓN')).trim(),
           unidad: it.unidad || 'Global',
           cantidad,
           precioUnitario,
