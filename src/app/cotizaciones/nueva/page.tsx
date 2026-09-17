@@ -22,9 +22,11 @@ import {
   RotateCcw,
   ArrowUp,
   ArrowDown,
+  Copy,
 } from 'lucide-react';
 import { numeroALetrasSoles } from '@/lib/number-to-letters';
 import { PARTIDAS_PRESUPUESTO, PARTIDAS_OE_HU, INSUMOS_PRECIOS } from '@/lib/costos-directos-data';
+import DuplicateQuoteModal from '@/components/DuplicateQuoteModal';
 
 interface ItemRow {
   id: string;
@@ -43,6 +45,7 @@ function CotizacionForm() {
   const editId = searchParams.get('edit') || searchParams.get('id');
   const isEditing = Boolean(editId);
   const [loadingEdit, setLoadingEdit] = useState(false);
+  const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
 
   const [empresas, setEmpresas] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
@@ -428,6 +431,18 @@ function CotizacionForm() {
         </div>
 
         <div className="flex items-center gap-3">
+          {isEditing && (
+            <button
+              type="button"
+              onClick={() => setDuplicateModalOpen(true)}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-600/30 transition-all cursor-pointer"
+              title="Duplicar esta cotización para cotizar con tus otras empresas"
+            >
+              <Copy className="w-3.5 h-3.5" />
+              Duplicar para otra Empresa
+            </button>
+          )}
+
           <button
             type="submit"
             disabled={saving || loadingEdit}
@@ -1284,6 +1299,22 @@ function CotizacionForm() {
             </div>
           </div>
         </div>
+      )}
+
+      {isEditing && editId && (
+        <DuplicateQuoteModal
+          isOpen={duplicateModalOpen}
+          onClose={() => setDuplicateModalOpen(false)}
+          quote={{
+            id: editId,
+            numero,
+            objetoServicio,
+            entidad,
+            empresaId,
+            montoTotal: totalGeneral,
+            fecha,
+          }}
+        />
       )}
     </form>
   );

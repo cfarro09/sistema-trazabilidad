@@ -19,8 +19,10 @@ import {
   Sparkles,
   RotateCcw,
   Trash2,
+  Copy,
 } from 'lucide-react';
 import Modal from '@/components/Modal';
+import DuplicateQuoteModal from '@/components/DuplicateQuoteModal';
 
 export default function CotizacionDetallePage({
   params,
@@ -35,6 +37,9 @@ export default function CotizacionDetallePage({
   const [loading, setLoading] = useState(true);
   const [converting, setConverting] = useState(false);
   const [downloading, setDownloading] = useState(false);
+
+  // Modal para duplicar cotización
+  const [modalDuplicateOpen, setModalDuplicateOpen] = useState(false);
 
   // Modal para editar número de cotización
   const [modalEditNumeroOpen, setModalEditNumeroOpen] = useState(false);
@@ -206,6 +211,16 @@ export default function CotizacionDetallePage({
               Editar Cotización
             </Link>
           )}
+
+          {/* Botón Duplicar Cotización */}
+          <button
+            onClick={() => setModalDuplicateOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-600/30 transition-all cursor-pointer"
+            title="Duplicar cotización para cotizar con tus otras empresas"
+          >
+            <Copy className="w-3.5 h-3.5" />
+            Duplicar Cotización
+          </button>
 
           {/* Botón Editar N° */}
           <button
@@ -516,6 +531,20 @@ export default function CotizacionDetallePage({
           </div>
         </form>
       </Modal>
+
+      {/* Modal Duplicar Cotización */}
+      <DuplicateQuoteModal
+        isOpen={modalDuplicateOpen}
+        onClose={() => setModalDuplicateOpen(false)}
+        quote={quote}
+        onDuplicated={() => {
+          fetch(`/api/cotizaciones/${id}`)
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.success) setQuote(data.data);
+            });
+        }}
+      />
     </div>
   );
 }

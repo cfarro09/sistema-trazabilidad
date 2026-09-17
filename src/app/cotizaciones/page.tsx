@@ -20,13 +20,19 @@ import {
   Download,
   Edit3,
   Trash2,
+  Copy,
 } from 'lucide-react';
 import Modal from '@/components/Modal';
+import DuplicateQuoteModal from '@/components/DuplicateQuoteModal';
 
 export default function CotizacionesPage() {
   const [cotizaciones, setCotizaciones] = useState<any[]>([]);
   const [empresas, setEmpresas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Modal duplicar cotización
+  const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
+  const [quoteToDuplicate, setQuoteToDuplicate] = useState<any>(null);
 
   // Filtros
   const [search, setSearch] = useState('');
@@ -334,6 +340,19 @@ export default function CotizacionesPage() {
                           Ver
                         </Link>
 
+                        {/* Botón Duplicar Cotización */}
+                        <button
+                          onClick={() => {
+                            setQuoteToDuplicate(c);
+                            setDuplicateModalOpen(true);
+                          }}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white rounded-xl text-xs font-bold transition-all border border-indigo-200 shadow-2xs cursor-pointer"
+                          title="Duplicar esta cotización para cotizar con otra empresa"
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                          Duplicar
+                        </button>
+
                         {c.estado !== 'ACEPTADA' && (
                           <Link
                             href={`/cotizaciones/nueva?edit=${c.id}`}
@@ -538,6 +557,19 @@ export default function CotizacionesPage() {
           </div>
         </form>
       </Modal>
+
+      {/* Modal Duplicar Cotización */}
+      <DuplicateQuoteModal
+        isOpen={duplicateModalOpen}
+        onClose={() => {
+          setDuplicateModalOpen(false);
+          setQuoteToDuplicate(null);
+        }}
+        quote={quoteToDuplicate}
+        onDuplicated={() => {
+          fetchCotizaciones();
+        }}
+      />
     </div>
   );
 }
